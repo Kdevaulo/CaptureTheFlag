@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-namespace Kdevaulo.CaptureTheFlag
+namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
     public class PlayerPool
     {
@@ -53,6 +53,8 @@ namespace Kdevaulo.CaptureTheFlag
                 {
                     var view = item.Key;
                     _viewsWithStates[view] = true;
+
+                    view.Enable();
                     return view;
                 }
             }

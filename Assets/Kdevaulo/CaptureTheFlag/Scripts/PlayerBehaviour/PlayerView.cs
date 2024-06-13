@@ -2,9 +2,9 @@
 
 using UnityEngine;
 
-namespace Kdevaulo.CaptureTheFlag
+namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
-    [AddComponentMenu(nameof(PlayerView) + " in " + nameof(CaptureTheFlag))]
+    [AddComponentMenu(nameof(PlayerView) + " in " + nameof(PlayerBehaviour))]
     public class PlayerView : MonoBehaviour
     {
         [SerializeField] private MeshRenderer _mesh;

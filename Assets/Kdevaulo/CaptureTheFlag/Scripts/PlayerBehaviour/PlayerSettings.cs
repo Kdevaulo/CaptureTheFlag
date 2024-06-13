@@ -1,14 +1,17 @@
-﻿using UnityEngine;
+﻿using System;
+
+using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Kdevaulo.CaptureTheFlag
+namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
-    [CreateAssetMenu(menuName = nameof(CaptureTheFlag) + "/" + nameof(PlayerSettings),
+    [CreateAssetMenu(menuName = nameof(PlayerBehaviour) + "/" + nameof(PlayerSettings),
         fileName = nameof(PlayerSettings))]
     public class PlayerSettings : ScriptableObject
     {
         [field: SerializeField] public Color[] SkinColors { get; private set; }
-        [field: SerializeField] public int InitialPlayersCount { get; private set; }
+        [field: Min(0)]
+        [field: SerializeField] public float PlayerMovementSensitivity { get; private set; }
 
         private int _currentColorIndex;
 

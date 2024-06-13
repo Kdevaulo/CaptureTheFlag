@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Kdevaulo.CaptureTheFlag
+namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
     public class PlayerFactory
     {
