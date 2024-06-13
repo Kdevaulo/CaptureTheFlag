@@ -16,4 +16,4 @@ MonoBehaviour:
   - {r: 0.8490566, g: 0.026007002, b: 0, a: 1}
   - {r: 1, g: 0.85033095, b: 0, a: 1}
   - {r: 0, g: 0.16243161, b: 0.6603774, a: 1}
-  <InitialPlayersCount>k__BackingField: 3
+  <PlayerMovementSensitivity>k__BackingField: 3
