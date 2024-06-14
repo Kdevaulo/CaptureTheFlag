@@ -218,6 +218,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1db85ec46848429cb576432092d9b32b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   _joystick: {fileID: 1121218615}
 --- !u!4 &122829416
 Transform:
@@ -321,6 +324,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 441588362}
+  - component: {fileID: 441588363}
   m_Layer: 0
   m_Name: SpawnPoint
   m_TagString: Untagged
@@ -342,6 +346,18 @@ Transform:
   m_Father: {fileID: 613741900}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &441588363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441588361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &589203671
 GameObject:
   m_ObjectHideFlags: 0
@@ -937,11 +953,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdf980fa9a0e445e91dee8a522c2cc3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   _userInput: {fileID: 122829415}
   _playerView: {fileID: 7257351059814031699, guid: b2edae43ca2b0e34f905cb257e587bf3, type: 3}
   _playersContainer: {fileID: 441588362}
   _playerSettings: {fileID: 11400000, guid: 5c5cd7f3ffd4b084e9f8b2674b30f66d, type: 2}
-  _networkHandler: {fileID: 1484730002}
+  _networkHandler: {fileID: 1484730005}
 --- !u!4 &1048645972
 Transform:
   m_ObjectHideFlags: 0
@@ -1025,9 +1044,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1484730003}
-  - component: {fileID: 1484730002}
   - component: {fileID: 1484730004}
   - component: {fileID: 1484730005}
+  - component: {fileID: 1484730002}
   m_Layer: 0
   m_Name: Networking
   m_TagString: Untagged
@@ -1044,43 +1063,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1484730001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f758445e697f472cafd7254f66ced397, type: 3}
+  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 1
-  runInBackground: 1
-  headlessStartMode: 1
-  editorAutoStart: 0
-  sendRate: 60
-  autoStartServerBuild: 0
-  autoConnectClientBuild: 0
-  offlineScene: 
-  onlineScene: 
-  transport: {fileID: 1484730004}
-  networkAddress: localhost
-  maxConnections: 100
-  disconnectInactiveConnections: 1
-  disconnectInactiveTimeout: 60
-  authenticator: {fileID: 0}
-  playerPrefab: {fileID: 0}
-  autoCreatePlayer: 0
-  playerSpawnMethod: 1
-  spawnPrefabs: []
-  exceptionsDisconnect: 1
-  snapshotSettings:
-    bufferTimeMultiplier: 2
-    bufferLimit: 32
-    catchupNegativeThreshold: -1
-    catchupPositiveThreshold: 1
-    catchupSpeed: 0.019999999552965164
-    slowdownSpeed: 0.03999999910593033
-    driftEmaDuration: 1
-    dynamicAdjustment: 1
-    dynamicAdjustmentTolerance: 1
-    deliveryTimeEmaDuration: 2
-  evaluationMethod: 0
-  evaluationInterval: 3
-  timeInterpolationGui: 0
+  offsetX: 0
+  offsetY: 0
 --- !u!4 &1484730003
 Transform:
   m_ObjectHideFlags: 0
@@ -1133,11 +1120,43 @@ MonoBehaviour:
   m_GameObject: {fileID: 1484730001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
+  m_Script: {fileID: 11500000, guid: f758445e697f472cafd7254f66ced397, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offsetX: 0
-  offsetY: 0
+  dontDestroyOnLoad: 1
+  runInBackground: 1
+  headlessStartMode: 1
+  editorAutoStart: 0
+  sendRate: 60
+  autoStartServerBuild: 0
+  autoConnectClientBuild: 0
+  offlineScene: 
+  onlineScene: 
+  transport: {fileID: 1484730004}
+  networkAddress: localhost
+  maxConnections: 100
+  disconnectInactiveConnections: 0
+  disconnectInactiveTimeout: 60
+  authenticator: {fileID: 0}
+  playerPrefab: {fileID: 7257351059814031702, guid: b2edae43ca2b0e34f905cb257e587bf3, type: 3}
+  autoCreatePlayer: 1
+  playerSpawnMethod: 0
+  spawnPrefabs: []
+  exceptionsDisconnect: 1
+  snapshotSettings:
+    bufferTimeMultiplier: 2
+    bufferLimit: 32
+    catchupNegativeThreshold: -1
+    catchupPositiveThreshold: 1
+    catchupSpeed: 0.019999999552965164
+    slowdownSpeed: 0.03999999910593033
+    driftEmaDuration: 1
+    dynamicAdjustment: 1
+    dynamicAdjustmentTolerance: 1
+    deliveryTimeEmaDuration: 2
+  evaluationMethod: 0
+  evaluationInterval: 3
+  timeInterpolationGui: 0
 --- !u!1 &1929721309
 GameObject:
   m_ObjectHideFlags: 0

@@ -18,25 +18,19 @@ namespace Kdevaulo.CaptureTheFlag.Networking
 
         public override void OnClientConnect()
         {
-            var characterMessage = new CharacterCreatedMessage
-            {
-                Id = 0,
-                PlayerName = "Test",
-                CharacterColor = Color.cyan
-            };
+            base.OnClientConnect();
 
-            Debug.Log("Client Connected");
-
-            NetworkClient.Send(characterMessage);
+            var message = new CharacterCreatedMessage();
+            NetworkClient.Send(message);
         }
 
         private void HandleClientConnection(NetworkConnectionToClient connection, CharacterCreatedMessage message,
             int channelId)
         {
-            Debug.Log(
-                $"Player connected - Id = {message.Id}, Name = {message.PlayerName}, Color = {message.CharacterColor}");
-
             ClientConnected.Invoke(connection);
+            Debug.Log(
+                
+                $"Player connected - Id = {message.Id}");
         }
     }
 }

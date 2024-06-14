@@ -1,28 +1,36 @@
-﻿using Mirror;
+﻿
+using Mirror;
+
+using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
     public class PlayerHandler
     {
-        private readonly PlayerPool _pool;
-        private readonly PlayerMovement _playerMovement;
         private readonly INetworkHandler _networkHandler;
 
-        public PlayerHandler(INetworkHandler networkHandler, PlayerMovement playerMovement, PlayerPool pool)
+        private readonly PlayerFactory _factory;
+        private readonly PlayerSettings _settings;
+        private readonly PlayerMovement _playerMovement;
+
+        public PlayerHandler(INetworkHandler networkHandler, /*PlayerMovement playerMovement,*/ /*PlayerFactory factory,*/
+            PlayerSettings settings)
         {
-            _pool = pool;
             _networkHandler = networkHandler;
-            _playerMovement = playerMovement;
+            //_playerMovement = playerMovement;
+            //_factory = factory;
+            _settings = settings;
 
             _networkHandler.ClientConnected += HandleClientConnected;
         }
 
         private void HandleClientConnected(NetworkConnectionToClient connection)
         {
-            var playerView = _pool.Get();
-            _playerMovement.SetPlayer(playerView);
-            
-            NetworkServer.AddPlayerForConnection(connection, playerView.gameObject);
+            Debug.Log("Connected");
+            //var view = _factory.Create(_settings.GetColor());
+            //_playerMovement.SetPlayer(view);
+
+            //NetworkServer.AddPlayerForConnection(connection, view.gameObject);
         }
     }
 }
