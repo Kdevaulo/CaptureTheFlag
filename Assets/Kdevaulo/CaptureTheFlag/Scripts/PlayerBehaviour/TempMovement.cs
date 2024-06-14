@@ -28,6 +28,12 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             _userInput.MoveHorizontal += HandleHorizontalMovement;
         }
 
+        private void OnDestroy()
+        {
+            _userInput.MoveVertical -= HandleVerticalMovement;
+            _userInput.MoveHorizontal -= HandleHorizontalMovement;
+        }
+
         private void HandleVerticalMovement(float offset)
         {
             if (isLocalPlayer)

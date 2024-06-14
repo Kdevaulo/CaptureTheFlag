@@ -7,7 +7,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
     [CreateAssetMenu(menuName = nameof(PlayerBehaviour) + "/" + nameof(PlayerSettings),
         fileName = nameof(PlayerSettings))]
-    public class PlayerSettings : ScriptableObject
+    public class PlayerSettings : ScriptableObject, IColorGetter
     {
         [field: SerializeField] public Color[] SkinColors { get; private set; }
         [field: Min(0)]
@@ -15,7 +15,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 
         private int _currentColorIndex;
 
-        public Color GetColor()
+        Color IColorGetter.GetColor()
         {
             Assert.IsTrue(SkinColors.Length > 0);
 

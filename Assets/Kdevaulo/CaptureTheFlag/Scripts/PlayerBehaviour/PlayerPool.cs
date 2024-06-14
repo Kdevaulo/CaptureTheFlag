@@ -27,9 +27,9 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         {
             for (int index = 0; index < _initialSize; index++)
             {
-                var targetColor = _settings.GetColor();
-                var view = AddItem(targetColor);
-                view.SetDefaultPosition();
+                //var targetColor = _settings.GetColor();
+                //var view = AddItem(targetColor);
+                //view.SetDefaultPosition();
             }
         }
 
@@ -43,24 +43,24 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             _viewsWithStates.Clear();
         }
 
-        public PlayerView Get()
-        {
-            foreach (var item in _viewsWithStates)
-            {
-                if (!item.Value)
-                {
-                    var view = item.Key;
-                    _viewsWithStates[view] = true;
-
-                    view.Enable();
-                    return view;
-                }
-            }
-
-            var color = _settings.GetColor();
-
-            return AddItem(color, true);
-        }
+        // public PlayerView Get()
+        // {
+        //     foreach (var item in _viewsWithStates)
+        //     {
+        //         if (!item.Value)
+        //         {
+        //             var view = item.Key;
+        //             _viewsWithStates[view] = true;
+        //
+        //             view.Enable();
+        //             return view;
+        //         }
+        //     }
+        //
+        //     var color = _settings.GetColor();
+        //
+        //     return AddItem(color, true);
+        // }
 
         private PlayerView AddItem(Color targetColor, bool active = false)
         {

@@ -1,6 +1,4 @@
-﻿using System;
-
-using Mirror;
+﻿using Mirror;
 
 using UnityEngine;
 
@@ -16,6 +14,10 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         private void Awake()
         {
             _propertyBlock = new MaterialPropertyBlock();
+
+            var entryPoint = FindObjectOfType<EntryPoint>();
+            var colorGetter = entryPoint.ColorGetter;
+            SetColor(colorGetter.GetColor());
         }
 
         public void SetColor(Color color)
@@ -26,7 +28,10 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 
         public void Move(Vector3 offset)
         {
-            transform.localPosition += offset;
+            if (isLocalPlayer)
+            {
+                transform.localPosition += offset;
+            }
         }
 
         public void SetDefaultPosition()

@@ -8,6 +8,8 @@ namespace Kdevaulo.CaptureTheFlag
     [AddComponentMenu(nameof(EntryPoint) + " in " + nameof(CaptureTheFlag))]
     public class EntryPoint : MonoBehaviour
     {
+        public IColorGetter ColorGetter => _playerSettings;
+        
         [Header("Common")]
         [SerializeField] private UserInput _userInput;
         [Header("Player")]

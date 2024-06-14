@@ -26,6 +26,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 
         private void HandleClientConnected(NetworkConnectionToClient connection)
         {
+            
             Debug.Log("Connected");
             //var view = _factory.Create(_settings.GetColor());
             //_playerMovement.SetPlayer(view);
