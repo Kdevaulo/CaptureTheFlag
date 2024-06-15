@@ -16,6 +16,7 @@ MonoBehaviour:
   CursorSpeed: 1
   FlagRadiusInUnits: 1
   OnLoseDelay: 3
+  SecondsToCapture: 5
   SpawnPositions:
   - {x: -3, y: 0, z: 1}
   - {x: -4, y: 0, z: -4}
