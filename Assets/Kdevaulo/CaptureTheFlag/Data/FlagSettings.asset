@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07028caf1dc940bab44df6fc5de06397, type: 3}
+  m_Name: FlagSettings
+  m_EditorClassIdentifier: 
+  FlagsCount: 3
+  CursorSpeed: 1
+  FlagRadiusInUnits: 1
+  OnLoseDelay: 3
+  SpawnPositions:
+  - {x: -3, y: 0, z: 1}
+  - {x: -4, y: 0, z: -4}
+  - {x: 3, y: 0, z: -1}
+  - {x: -4, y: 0, z: -2}
+  - {x: -2, y: 0, z: 3}
+  - {x: -4, y: 0, z: 4}
+  - {x: 2, y: 0, z: 3}
+  - {x: -4, y: 0, z: 0}
+  - {x: -2, y: 0, z: 4}
+  - {x: -4, y: 0, z: 2}
+  - {x: -4, y: 0, z: -3}
+  - {x: -2, y: 0, z: 0}
