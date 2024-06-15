@@ -16,7 +16,7 @@ namespace Kdevaulo.CaptureTheFlag
         [Space]
         [SerializeField] private Button _startServerOnlyButton;
         [SerializeField] private Button _stopServerButton;
-
+        [Space]
         [SerializeField] private NetworkManager _networkManager;
 
         private bool _hostStarted;
