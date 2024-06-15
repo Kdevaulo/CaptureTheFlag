@@ -1,14 +1,11 @@
-﻿using System;
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
     public class PlayerMovement
     {
-        private readonly UserInput _userInput;
-
         private readonly float _movementSensitivity;
+        private readonly UserInput _userInput;
 
         private PlayerView _playerView;
 

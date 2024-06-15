@@ -1,6 +1,4 @@
-﻿using System;
-
-using Mirror;
+﻿using Mirror;
 
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -13,9 +11,9 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
     {
         [Min(0)]
         [SerializeField] private float _movementSensitivity;
+        private PlayerView _playerView;
 
         private UserInput _userInput;
-        private PlayerView _playerView;
 
         private void Awake()
         {

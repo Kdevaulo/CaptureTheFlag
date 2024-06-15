@@ -6,7 +6,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
     {
         private readonly Transform _parent;
         private readonly PlayerView _view;
-        
+
         public PlayerFactory(PlayerView view, Transform parent)
         {
             _view = view;

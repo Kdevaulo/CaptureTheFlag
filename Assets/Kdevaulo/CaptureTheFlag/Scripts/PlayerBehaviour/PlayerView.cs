@@ -1,21 +1,17 @@
-﻿using System;
-
-using Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour;
-
-using Mirror;
+﻿using Mirror;
 
 using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
     [AddComponentMenu(nameof(PlayerView) + " in " + nameof(PlayerBehaviour))]
-    public class PlayerView : NetworkBehaviour
+    public class PlayerView : NetworkBehaviour, IFlagInvader
     {
         [SerializeField] private MeshRenderer _mesh;
 
-        private MaterialPropertyBlock _propertyBlock;
+        private IFlagSpawner _flagSpawner;
 
-        private FlagSpawner _flagSpawner;
+        private MaterialPropertyBlock _propertyBlock;
 
         private void Awake()
         {
@@ -29,11 +25,30 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 
             _flagSpawner = entryPoint.FlagSpawner;
             _flagSpawner.Spawn(color, netIdentity);
+
+            entryPoint.InvaderObserver.AddInvaders(this);
+
+            NetworkClient.OnDisconnectedEvent += entryPoint.HandleClientDisconnected;
         }
 
         private void OnDestroy()
         {
             _flagSpawner.Clear(netIdentity);
+        }
+
+        Vector3 IFlagInvader.GetPosition()
+        {
+            return transform.position;
+        }
+
+        void IFlagInvader.HandleFlagCaptured()
+        {
+            //todo: capturedParticles
+        }
+
+        void IFlagInvader.HandleAllCaptured()
+        {
+            Debug.Log(_propertyBlock.GetColor("_Color") + " Won!");
         }
 
         public void SetColor(Color color)

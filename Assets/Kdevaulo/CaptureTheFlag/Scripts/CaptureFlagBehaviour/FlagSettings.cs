@@ -7,7 +7,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 {
     [CreateAssetMenu(menuName = nameof(PlayerBehaviour) + "/" + nameof(FlagSettings),
         fileName = nameof(FlagSettings))]
-    public class FlagSettings : ScriptableObject
+    public class FlagSettings : ScriptableObject, IReinitializable
     {
         [Min(0)]
         [field: SerializeField] public int FlagsCount;
@@ -18,15 +18,21 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         [field: SerializeField] public float FlagRadiusInUnits;
         [Min(0)]
         [field: SerializeField] public float OnLoseDelay;
+        [Min(0)]
+        [field: SerializeField] public float SecondsToCapture;
 
         [field: SerializeField] public Vector3[] SpawnPositions;
 
         private Dictionary<Vector3, bool> _flagsPositions;
 
+        void IReinitializable.Reinitialize()
+        {
+            Initialize();
+        }
+
         public void Initialize()
         {
             _flagsPositions = new Dictionary<Vector3, bool>(SpawnPositions.Length);
-            Debug.Log(1);
 
             foreach (var position in SpawnPositions)
             {

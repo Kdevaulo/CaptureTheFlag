@@ -29,7 +29,6 @@ namespace Kdevaulo.CaptureTheFlag.Networking
         {
             ClientConnected.Invoke(connection);
             Debug.Log(
-                
                 $"Player connected - Id = {message.Id}");
         }
     }

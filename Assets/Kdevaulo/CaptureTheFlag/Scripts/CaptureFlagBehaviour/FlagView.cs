@@ -1,6 +1,4 @@
-﻿using System;
-
-using Mirror;
+﻿using Mirror;
 
 using UnityEngine;
 

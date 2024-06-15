@@ -7,9 +7,6 @@ namespace Kdevaulo.CaptureTheFlag
     [AddComponentMenu(nameof(UserInput) + " in " + nameof(CaptureTheFlag))]
     public class UserInput : MonoBehaviour, IUpdatable
     {
-        public event Action<float> MoveVertical = delegate { };
-        public event Action<float> MoveHorizontal = delegate { };
-
         [SerializeField] private Joystick _joystick;
 
         void IUpdatable.Update()
@@ -24,5 +21,8 @@ namespace Kdevaulo.CaptureTheFlag
                 MoveHorizontal.Invoke(_joystick.Horizontal * Time.deltaTime);
             }
         }
+
+        public event Action<float> MoveVertical = delegate { };
+        public event Action<float> MoveHorizontal = delegate { };
     }
 }

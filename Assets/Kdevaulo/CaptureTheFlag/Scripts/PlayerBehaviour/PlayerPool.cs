@@ -7,13 +7,13 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
     public class PlayerPool
     {
         private readonly PlayerFactory _factory;
-        private readonly PlayerSettings _settings;
 
         private readonly int _initialSize = 3;
-
-        private Dictionary<PlayerView, bool> _viewsWithStates;
+        private readonly PlayerSettings _settings;
 
         private int _lastColorIndex;
+
+        private Dictionary<PlayerView, bool> _viewsWithStates;
 
         public PlayerPool(PlayerFactory factory, PlayerSettings settings)
         {
@@ -21,6 +21,16 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             _settings = settings;
 
             _viewsWithStates = new Dictionary<PlayerView, bool>(_initialSize);
+        }
+
+        public void Clear()
+        {
+            foreach (var view in _viewsWithStates.Keys)
+            {
+                Object.Destroy(view.gameObject);
+            }
+
+            _viewsWithStates.Clear();
         }
 
         public void Initialize()
@@ -33,14 +43,11 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             }
         }
 
-        public void Clear()
+        public void Return(PlayerView view)
         {
-            foreach (var view in _viewsWithStates.Keys)
-            {
-                Object.Destroy(view.gameObject);
-            }
-
-            _viewsWithStates.Clear();
+            _viewsWithStates[view] = false;
+            view.Disable();
+            view.SetDefaultPosition();
         }
 
         // public PlayerView Get()
@@ -77,13 +84,6 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             }
 
             return view;
-        }
-
-        public void Return(PlayerView view)
-        {
-            _viewsWithStates[view] = false;
-            view.Disable();
-            view.SetDefaultPosition();
         }
     }
 }

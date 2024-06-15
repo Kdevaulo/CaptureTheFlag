@@ -1,13 +1,11 @@
-﻿using System;
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
     [CreateAssetMenu(menuName = nameof(PlayerBehaviour) + "/" + nameof(PlayerSettings),
         fileName = nameof(PlayerSettings))]
-    public class PlayerSettings : ScriptableObject, IColorGetter
+    public class PlayerSettings : ScriptableObject
     {
         [field: SerializeField] public Color[] SkinColors { get; private set; }
         [field: Min(0)]
@@ -15,7 +13,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 
         private int _currentColorIndex;
 
-        Color IColorGetter.GetColor()
+        public Color GetColor()
         {
             Assert.IsTrue(SkinColors.Length > 0);
 
