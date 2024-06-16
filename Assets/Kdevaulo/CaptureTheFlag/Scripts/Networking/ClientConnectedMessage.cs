@@ -2,7 +2,7 @@
 
 namespace Kdevaulo.CaptureTheFlag.Networking
 {
-    public struct CharacterCreatedMessage : NetworkMessage
+    public struct ClientConnectedMessage : NetworkMessage
     {
         public int Id;
     }

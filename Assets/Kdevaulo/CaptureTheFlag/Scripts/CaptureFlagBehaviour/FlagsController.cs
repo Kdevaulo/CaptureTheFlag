@@ -8,24 +8,30 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 {
     public class FlagsController : IUpdatable, IFlagSpawner, IFlagInvaderObserver, IReinitializable
     {
+        private readonly IMiniGameHandler _miniGameHandler;
         private readonly FlagSettings _settings;
         private readonly FlagSpawner _spawner;
 
+        private bool _canHandleFlags;
+
         private Dictionary<FlagView, FlagModel> _flags;
-        private bool _flagsSettedUp;
 
         private List<IFlagInvader> _invaders;
         private Dictionary<IFlagInvader, int> _invadersCaptures;
 
         private int _maxFlags;
+
+        private float _miniGameChance;
         private float _squaredRadius;
 
-        public FlagsController(FlagSettings settings, FlagSpawner spawner)
+        public FlagsController(FlagSettings settings, FlagSpawner spawner, IMiniGameHandler miniGameHandler)
         {
             _settings = settings;
             _spawner = spawner;
+            _miniGameHandler = miniGameHandler;
 
             _maxFlags = _settings.FlagsCount;
+            _miniGameChance = _settings.MiniGameChance;
             _squaredRadius = _settings.FlagRadiusInUnits * _settings.FlagRadiusInUnits;
         }
 
@@ -55,7 +61,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 
         void IReinitializable.Reinitialize()
         {
-            _flagsSettedUp = false;
+            _canHandleFlags = false;
 
             _flags = null;
             _invaders = null;
@@ -64,11 +70,9 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 
         void IUpdatable.Update()
         {
-            if (_flagsSettedUp)
+            if (_canHandleFlags)
             {
-                List<FlagView> flagsToRemove = null;
-
-                flagsToRemove = TryCaptureFlags(flagsToRemove);
+                var flagsToRemove = TryCaptureFlags();
 
                 if (flagsToRemove != null)
                 {
@@ -81,6 +85,13 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             }
         }
 
+        private bool HandleFlagCaptured(IFlagInvader invader)
+        {
+            invader.HandleFlagCaptured();
+
+            return ++_invadersCaptures[invader] == _maxFlags;
+        }
+
         private void SetupFlags(FlagView[] flags)
         {
             _flags ??= new Dictionary<FlagView, FlagModel>();
@@ -89,15 +100,21 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             {
                 var position = _settings.GetPosition();
                 flagView.SetPosition(position);
-                _flags.Add(flagView, new FlagModel(position, _settings.SecondsToCapture));
+
+                var model = new FlagModel(position, _settings.SecondsToCapture, _settings.OnLoseDelay)
+                {
+                    CanStartMiniGame = true
+                };
+
+                _flags.Add(flagView, model);
             }
 
-            _flagsSettedUp = true;
+            _canHandleFlags = true;
         }
 
         private void Stop()
         {
-            _flagsSettedUp = false;
+            _canHandleFlags = false;
 
             foreach (var flag in _flags)
             {
@@ -107,8 +124,44 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             _flags.Clear();
         }
 
-        private List<FlagView> TryCaptureFlags(List<FlagView> flagsToRemove)
+        private CaptureState TryCaptureFlag(FlagModel model, IFlagInvader invader)
         {
+            var captureState = model.TryCapture();
+
+            switch (captureState)
+            {
+                case CaptureState.Capturing:
+                    TryStartMiniGame(model, invader);
+
+                    // todo: capturing time scale?
+                    break;
+
+                case CaptureState.Captured:
+
+                    bool isLastFlag = HandleFlagCaptured(invader);
+
+                    if (isLastFlag)
+                    {
+                        return CaptureState.CapturedLastFlag;
+                    }
+
+                    break;
+
+                case CaptureState.Blocked:
+                    // todo: blocked flag timer tick?
+                    break;
+
+                case CaptureState.WaitingMiniGame:
+                    break;
+            }
+
+            return captureState;
+        }
+
+        private List<FlagView> TryCaptureFlags()
+        {
+            List<FlagView> flagsToRemove = null;
+
             foreach (var flag in _flags)
             {
                 foreach (var invader in _invaders)
@@ -117,19 +170,16 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 
                     if (squaredDistance <= _squaredRadius)
                     {
-                        if (flag.Value.TryCapture())
+                        var captureState = TryCaptureFlag(flag.Value, invader);
+
+                        if (captureState == CaptureState.CapturedLastFlag)
+                        {
+                            Stop();
+                            invader.HandleAllCaptured();
+                        }
+                        else if (captureState == CaptureState.Captured)
                         {
                             flagsToRemove ??= new List<FlagView>();
-
-                            invader.HandleFlagCaptured();
-
-                            if (++_invadersCaptures[invader] == _maxFlags)
-                            {
-                                Stop();
-                                invader.HandleAllCaptured();
-                                return null;
-                            }
-
                             flagsToRemove.Add(flag.Key);
                         }
                     }
@@ -137,6 +187,15 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             }
 
             return flagsToRemove;
+        }
+
+        private void TryStartMiniGame(FlagModel model, IFlagInvader invader)
+        {
+            if (model.CanStartMiniGame && Random.value < _miniGameChance)
+            {
+                model.WaitForMiniGame();
+                _miniGameHandler.CallMiniGame(model, invader.GetNetIdentity());
+            }
         }
     }
 }

@@ -13,12 +13,12 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         private readonly PlayerSettings _settings;
 
         public PlayerController(
-            INetworkHandler networkHandler, /*PlayerMovement playerMovement,*/ /*PlayerFactory factory,*/
+            INetworkHandler networkHandler, /*PlayerMovement playerMovement,*/ PlayerFactory factory,
             PlayerSettings settings)
         {
             _networkHandler = networkHandler;
             //_playerMovement = playerMovement;
-            //_factory = factory;
+            _factory = factory;
             _settings = settings;
 
             _networkHandler.ClientConnected += HandleClientConnected;
@@ -32,10 +32,10 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         private void HandleClientConnected(NetworkConnectionToClient connection)
         {
             Debug.Log("Connected");
-            //var view = _factory.Create(_settings.GetColor());
+            var view = _factory.Create(_settings.GetColor());
             //_playerMovement.SetPlayer(view);
 
-            //NetworkServer.AddPlayerForConnection(connection, view.gameObject);
+            NetworkServer.AddPlayerForConnection(connection, view.gameObject);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 using Mirror;
 
@@ -13,23 +14,42 @@ namespace Kdevaulo.CaptureTheFlag.Networking
 
         public override void OnStartServer()
         {
-            NetworkServer.RegisterHandler<CharacterCreatedMessage>(HandleClientConnection);
+            NetworkServer.RegisterHandler<ClientConnectedMessage>(HandleClientConnection);
         }
 
         public override void OnClientConnect()
         {
             base.OnClientConnect();
 
-            var message = new CharacterCreatedMessage();
+            var message = new ClientConnectedMessage();
             NetworkClient.Send(message);
         }
 
-        private void HandleClientConnection(NetworkConnectionToClient connection, CharacterCreatedMessage message,
-            int channelId)
+        public void SetMessageCaller(ILostMessageCaller messageCaller)
+        {
+            messageCaller.CallLostMessage += CallLostMessage;
+        }
+
+        [Server]
+        private void HandleClientConnection(NetworkConnectionToClient connection, ClientConnectedMessage message)
         {
             ClientConnected.Invoke(connection);
             Debug.Log(
                 $"Player connected - Id = {message.Id}");
+        }
+
+        private void CallLostMessage(NetworkIdentity identity)
+        {
+            var message = new MiniGameLoseMessage()
+            {
+                Message = LocalizationStrings.LoseMessage,
+                Identity = identity
+            };
+
+            foreach (var item in NetworkServer.connections.Where(x => x.Value.identity != identity))
+            {
+                item.Value.Send(message);
+            }
         }
     }
 }

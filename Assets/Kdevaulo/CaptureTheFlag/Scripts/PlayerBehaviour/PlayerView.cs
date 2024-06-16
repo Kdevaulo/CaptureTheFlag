@@ -17,6 +17,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         {
             _propertyBlock = new MaterialPropertyBlock();
 
+            //todo: change to spawn with factory and set reference via method
             var entryPoint = FindObjectOfType<EntryPoint>();
             var colorGetter = entryPoint.ColorGetter;
 
@@ -39,6 +40,11 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         Vector3 IFlagInvader.GetPosition()
         {
             return transform.position;
+        }
+
+        public NetworkIdentity GetNetIdentity()
+        {
+            return netIdentity;
         }
 
         void IFlagInvader.HandleFlagCaptured()

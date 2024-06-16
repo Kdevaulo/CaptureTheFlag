@@ -5,23 +5,25 @@ using UnityEngine.Assertions;
 
 namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 {
-    [CreateAssetMenu(menuName = nameof(PlayerBehaviour) + "/" + nameof(FlagSettings),
+    [CreateAssetMenu(menuName = nameof(CaptureFlagBehaviour) + "/" + nameof(FlagSettings),
         fileName = nameof(FlagSettings))]
     public class FlagSettings : ScriptableObject, IReinitializable
     {
-        [Min(0)]
-        [field: SerializeField] public int FlagsCount;
+        [field: Min(0)]
+        [field: SerializeField] public int FlagsCount { get; private set; }
 
-        [Min(0)]
-        [field: SerializeField] public float CursorSpeed;
-        [Min(0)]
-        [field: SerializeField] public float FlagRadiusInUnits;
-        [Min(0)]
-        [field: SerializeField] public float OnLoseDelay;
-        [Min(0)]
-        [field: SerializeField] public float SecondsToCapture;
+        [field: Min(0)]
+        [field: SerializeField] public float CursorSpeed { get; private set; }
+        [field: Min(0)]
+        [field: SerializeField] public float FlagRadiusInUnits { get; private set; }
+        [field: Min(0)]
+        [field: SerializeField] public float OnLoseDelay { get; private set; }
+        [field: Min(0)]
+        [field: SerializeField] public float SecondsToCapture { get; private set; }
+        [field: Range(0, 1)]
+        [field: SerializeField] public float MiniGameChance { get; private set; }
 
-        [field: SerializeField] public Vector3[] SpawnPositions;
+        [field: SerializeField] public Vector3[] SpawnPositions { get; private set; }
 
         private Dictionary<Vector3, bool> _flagsPositions;
 
