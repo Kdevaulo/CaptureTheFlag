@@ -12,21 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07028caf1dc940bab44df6fc5de06397, type: 3}
   m_Name: FlagSettings
   m_EditorClassIdentifier: 
-  FlagsCount: 3
-  CursorSpeed: 1
-  FlagRadiusInUnits: 1
-  OnLoseDelay: 3
-  SecondsToCapture: 5
-  SpawnPositions:
-  - {x: -3, y: 0, z: 1}
+  <FlagsCount>k__BackingField: 3
+  <CursorSpeed>k__BackingField: 1
+  <FlagRadiusInUnits>k__BackingField: 1
+  <OnLoseDelay>k__BackingField: 2
+  <SecondsToCapture>k__BackingField: 4
+  <MiniGameChance>k__BackingField: 0.331
+  <SpawnPositions>k__BackingField:
+  - {x: -2, y: 0, z: -4}
+  - {x: 2, y: 0, z: 4}
+  - {x: 4, y: 0, z: 2}
   - {x: -4, y: 0, z: -4}
-  - {x: 3, y: 0, z: -1}
-  - {x: -4, y: 0, z: -2}
-  - {x: -2, y: 0, z: 3}
-  - {x: -4, y: 0, z: 4}
-  - {x: 2, y: 0, z: 3}
-  - {x: -4, y: 0, z: 0}
-  - {x: -2, y: 0, z: 4}
-  - {x: -4, y: 0, z: 2}
-  - {x: -4, y: 0, z: -3}
-  - {x: -2, y: 0, z: 0}
+  - {x: 4, y: 0, z: 4}
+  - {x: 0, y: 0, z: 3}
+  - {x: 2, y: 0, z: 2}
+  - {x: -2, y: 0, z: -2}
+  - {x: 0, y: 0, z: 0}
+  - {x: 3, y: 0, z: 0}
