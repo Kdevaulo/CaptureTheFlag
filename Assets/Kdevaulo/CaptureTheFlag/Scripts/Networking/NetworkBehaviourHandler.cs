@@ -11,6 +11,7 @@ namespace Kdevaulo.CaptureTheFlag.Networking
     public class NetworkBehaviourHandler : NetworkManager, INetworkHandler
     {
         public event Action<NetworkConnectionToClient> ClientConnected = delegate { };
+        public event Action<NetworkConnectionToClient> ClientDisconnects = delegate { };
 
         public override void OnStartServer()
         {
@@ -25,12 +26,18 @@ namespace Kdevaulo.CaptureTheFlag.Networking
             NetworkClient.Send(message);
         }
 
+        public override void OnServerDisconnect(NetworkConnectionToClient conn)
+        {
+            base.OnServerDisconnect(conn);
+
+            ClientDisconnects.Invoke(conn);
+        }
+
         public void SetMessageCaller(IMiniGameLostHandler handler)
         {
             handler.HandleMiniGameLost += CallLostMessage;
         }
 
-        [Server]
         private void HandleClientConnection(NetworkConnectionToClient connection, ClientConnectedMessage message)
         {
             ClientConnected.Invoke(connection);

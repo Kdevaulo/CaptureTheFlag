@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Mirror;
 
 using UnityEngine;
 using UnityEngine.Assertions;
-
-using Random = UnityEngine.Random;
 
 namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 {
@@ -16,18 +13,18 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         private readonly FlagSettings _settings;
         private readonly FlagSpawner _spawner;
 
+        private bool _canHandleFlags;
+
         private Dictionary<FlagView, FlagModel> _flags;
+        private Dictionary<IFlagInvader, int> _invadersCaptures;
+        private Dictionary<IFlagInvader, float> _blockedInvaders;
 
         private List<IFlagInvader> _invaders;
-        private Dictionary<IFlagInvader, float> _blockedInvaders;
-        private Dictionary<IFlagInvader, int> _invadersCaptures;
 
         private int _maxFlags;
 
-        private bool _canHandleFlags;
-
-        private float _squaredRadius;
         private float _miniGameChance;
+        private float _squaredRadius;
 
         public FlagsController(FlagSettings settings, FlagSpawner spawner, IMiniGameHandler miniGameHandler)
         {
@@ -76,6 +73,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             _invadersCaptures = null;
         }
 
+        [Server]
         void IUpdatable.Update()
         {
             if (_canHandleFlags)
@@ -91,6 +89,42 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
                     }
                 }
             }
+        }
+
+        private bool HandleFlagCaptured(IFlagInvader invader)
+        {
+            return ++_invadersCaptures[invader] == _maxFlags;
+        }
+
+        private void HandleMiniGameLost(IFlagInvader invader)
+        {
+            Assert.IsFalse(_blockedInvaders.ContainsKey(invader));
+
+            _blockedInvaders.Add(invader, _settings.OnLoseDelay);
+            Debug.Log("Added to block");
+        }
+
+        private bool IsInvaderBlocked(IFlagInvader invader)
+        {
+            if (_blockedInvaders.TryGetValue(invader, out float blockTimeLeft))
+            {
+                blockTimeLeft -= Time.deltaTime;
+
+                if (blockTimeLeft <= 0)
+                {
+                    _blockedInvaders.Remove(invader);
+
+                    Debug.Log("Unblocked");
+
+                    return false;
+                }
+
+                _blockedInvaders[invader] = blockTimeLeft;
+
+                return true;
+            }
+
+            return false;
         }
 
         private void SetupFlags(FlagView[] flags)
@@ -111,6 +145,36 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             }
 
             _canHandleFlags = true;
+        }
+
+        private CaptureState TryCaptureFlag(FlagModel model, IFlagInvader invader)
+        {
+            var captureState = model.TryCapture();
+
+            switch (captureState)
+            {
+                case CaptureState.Capturing:
+                    TryStartMiniGame(model, invader);
+
+                    // todo: capturing time scale?
+                    break;
+
+                case CaptureState.Captured:
+
+                    bool isLastFlag = HandleFlagCaptured(invader);
+
+                    if (isLastFlag)
+                    {
+                        return CaptureState.CapturedLastFlag;
+                    }
+
+                    break;
+
+                case CaptureState.WaitingMiniGame:
+                    break;
+            }
+
+            return captureState;
         }
 
         private List<FlagView> TryCaptureFlags()
@@ -152,64 +216,6 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             return flagsToRemove;
         }
 
-        private CaptureState TryCaptureFlag(FlagModel model, IFlagInvader invader)
-        {
-            var captureState = model.TryCapture();
-
-            switch (captureState)
-            {
-                case CaptureState.Capturing:
-                    TryStartMiniGame(model, invader);
-
-                    // todo: capturing time scale?
-                    break;
-
-                case CaptureState.Captured:
-
-                    bool isLastFlag = HandleFlagCaptured(invader);
-
-                    if (isLastFlag)
-                    {
-                        return CaptureState.CapturedLastFlag;
-                    }
-
-                    break;
-
-                case CaptureState.WaitingMiniGame:
-                    break;
-            }
-
-            return captureState;
-        }
-
-        private bool IsInvaderBlocked(IFlagInvader invader)
-        {
-            if (_blockedInvaders.TryGetValue(invader, out float blockTimeLeft))
-            {
-                blockTimeLeft -= Time.deltaTime;
-
-                if (blockTimeLeft <= 0)
-                {
-                    _blockedInvaders.Remove(invader);
-
-                    Debug.Log("Unblocked");
-                    
-                    return false;
-                }
-
-                _blockedInvaders[invader] = blockTimeLeft;
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool HandleFlagCaptured(IFlagInvader invader)
-        {
-            return ++_invadersCaptures[invader] == _maxFlags;
-        }
-
         private void TryStartMiniGame(FlagModel model, IFlagInvader invader)
         {
             if (model.CanStartMiniGame && Random.value < _miniGameChance)
@@ -217,14 +223,6 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
                 model.WaitForMiniGame();
                 _miniGameHandler.CallMiniGame(model, invader);
             }
-        }
-
-        private void HandleMiniGameLost(IFlagInvader invader)
-        {
-            Assert.IsFalse(_blockedInvaders.ContainsKey(invader));
-
-            _blockedInvaders.Add(invader, _settings.OnLoseDelay);
-            Debug.Log("Added to block");
         }
     }
 }

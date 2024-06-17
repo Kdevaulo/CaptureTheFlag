@@ -9,71 +9,60 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
     {
         [SerializeField] private MeshRenderer _mesh;
 
-        private IFlagSpawner _flagSpawner;
+        [SyncVar(hook = nameof(HandleColorUpdated))]
+        private Color _color;
+
+        [SyncVar(hook = nameof(HandlePositionChanged))]
+        private Vector3 _localPosition;
 
         private MaterialPropertyBlock _propertyBlock;
 
         private void Awake()
         {
             _propertyBlock = new MaterialPropertyBlock();
-
-            //todo: change to spawn with factory and set reference via method
-            var entryPoint = FindObjectOfType<EntryPoint>();
-            var colorGetter = entryPoint.ColorGetter;
-
-            var color = colorGetter.GetColor();
-            SetColor(color);
-
-            _flagSpawner = entryPoint.FlagSpawner;
-            _flagSpawner.Spawn(color, netIdentity);
-
-            entryPoint.InvaderObserver.AddInvaders(this);
-
-            NetworkClient.OnDisconnectedEvent += entryPoint.HandleClientDisconnected;
         }
 
-        private void OnDestroy()
-        {
-            _flagSpawner.Clear(netIdentity);
-        }
-
+        [Client]
         Vector3 IFlagInvader.GetPosition()
         {
             return transform.position;
         }
 
+        [Client]
         public NetworkIdentity GetNetIdentity()
         {
             return netIdentity;
         }
 
+        [Server]
         public void SetColor(Color color)
         {
-            _propertyBlock.SetColor("_Color", color);
+            _color = color;
+        }
+
+        [Server]
+        public void SetPosition(Vector3 offset)
+        {
+            _localPosition += offset;
+        }
+
+        [Server]
+        public void SetDefaultPosition()
+        {
+            _localPosition = Vector3.zero;
+        }
+
+        [Client]
+        private void HandleColorUpdated(Color oldColor, Color newColor)
+        {
+            _propertyBlock.SetColor("_Color", newColor);
             _mesh.SetPropertyBlock(_propertyBlock);
         }
 
-        public void Move(Vector3 offset)
+        [Client]
+        private void HandlePositionChanged(Vector3 oldPosition, Vector3 newPosition)
         {
-            if (isLocalPlayer)
-            {
-                transform.localPosition += offset;
-            }
-        }
-
-        public void SetDefaultPosition()
-        {
-            transform.localPosition = Vector3.zero;
-        }
-
-        public void Enable()
-        {
-            gameObject.SetActive(true);
-        }
-
-        public void Disable()
-        {
-            gameObject.SetActive(false);
+            transform.localPosition = newPosition;
         }
     }
 }

@@ -4,7 +4,6 @@
     {
         Capturing,
         Captured,
-        Blocked,
         WaitingMiniGame,
         CapturedLastFlag
     }

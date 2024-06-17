@@ -13,10 +13,10 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             _parent = parent;
         }
 
-        public PlayerView Create(Color targetColor)
+        public PlayerView Create()
         {
             var playerView = Object.Instantiate(_view, _parent);
-            playerView.SetColor(targetColor);
+            playerView.SetDefaultPosition();
 
             return playerView;
         }

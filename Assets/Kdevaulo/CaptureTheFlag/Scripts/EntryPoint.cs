@@ -29,27 +29,23 @@ namespace Kdevaulo.CaptureTheFlag
         [Header("Network")]
         [SerializeField] private NetworkBehaviourHandler _networkHandler;
 
-        private UserInputHandler _userInputHandler;
-        
         private PlayerFactory _factory;
         private FlagSpawner _flagSpawner;
-        
+
         private FlagsController _flagsController;
         private PlayerController _playerController;
         private MiniGameController _miniGameController;
         private UIMessageController _uiMessageController;
 
+        private UserInputHandler _userInputHandler;
+
         private IUpdatable[] _updatables;
         private IReinitializable[] _reinitializables;
-
-        public IColorGetter ColorGetter => _playerController;
-        public IFlagSpawner FlagSpawner => _flagsController;
-        public IFlagInvaderObserver InvaderObserver => _flagsController;
 
         private void Awake()
         {
             _userInputHandler = new UserInputHandler(_joystick);
-            
+
             _factory = new PlayerFactory(_playerView, _playersContainer);
             _flagSpawner = new FlagSpawner(_flagView, _flagSettings, _flagsContainer);
             var playerMovement = new PlayerMovement(_userInputHandler, _playerSettings);
@@ -57,13 +53,15 @@ namespace Kdevaulo.CaptureTheFlag
             _uiMessageController = new UIMessageController(_uiMessageView, _uiMessageSettings);
             _miniGameController = new MiniGameController(_miniGameView, _miniGameSettings, _userInputHandler);
             _flagsController = new FlagsController(_flagSettings, _flagSpawner, _miniGameController);
-            _playerController =
-                new PlayerController(_networkHandler,  playerMovement, _factory, _playerSettings);
+            _playerController = new PlayerController(_networkHandler,
+                playerMovement, _factory, _playerSettings, _flagsController, _flagsController);
 
             _flagSettings.Initialize();
             _networkHandler.SetMessageCaller(_miniGameController);
 
-            _updatables = new IUpdatable[] { _userInputHandler, _flagsController, _miniGameController, _uiMessageController };
+            _updatables = new IUpdatable[]
+                { _userInputHandler, _flagsController, _miniGameController, _uiMessageController };
+
             _reinitializables = new IReinitializable[] { _flagSettings, _flagSpawner, _flagsController };
         }
 
@@ -73,19 +71,6 @@ namespace Kdevaulo.CaptureTheFlag
             {
                 item.Update();
             }
-        }
-
-        private void Reinitialize()
-        {
-            foreach (var item in _reinitializables)
-            {
-                item.Reinitialize();
-            }
-        }
-
-        public void HandleClientDisconnected()
-        {
-            Reinitialize();
         }
     }
 }

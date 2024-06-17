@@ -1,6 +1,4 @@
-﻿using Kdevaulo.CaptureTheFlag.MiniGameBehaviour;
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 {

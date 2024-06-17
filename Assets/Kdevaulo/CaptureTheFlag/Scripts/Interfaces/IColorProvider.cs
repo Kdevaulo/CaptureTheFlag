@@ -2,7 +2,7 @@
 
 namespace Kdevaulo.CaptureTheFlag
 {
-    public interface IColorGetter
+    public interface IColorProvider
     {
         Color GetColor();
     }

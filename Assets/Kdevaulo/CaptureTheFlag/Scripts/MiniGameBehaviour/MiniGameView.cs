@@ -9,8 +9,6 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
     [AddComponentMenu(nameof(MiniGameView) + " in " + nameof(MiniGameBehaviour))]
     public class MiniGameView : MonoBehaviour, IPointerClickHandler
     {
-        public event Action<MiniGameView> Clicked = delegate { };
-
         [SerializeField] private Scrollbar _correctZoneScrollbar;
 
         [SerializeField] private GameObject _miniGameContainer;
@@ -35,6 +33,8 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
         {
             Clicked.Invoke(this);
         }
+
+        public event Action<MiniGameView> Clicked = delegate { };
 
         public float GetCorrectAreaSize()
         {

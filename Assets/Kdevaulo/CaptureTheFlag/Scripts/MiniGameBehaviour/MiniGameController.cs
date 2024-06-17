@@ -6,7 +6,6 @@ using Mirror;
 using UnityEngine;
 
 using Random = UnityEngine.Random;
-using Time = UnityEngine.Time;
 
 namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 {
@@ -14,10 +13,10 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
     {
         public event Action<IFlagInvader> HandleMiniGameLost = delegate { };
 
+        private readonly IPauseHandler[] _pauseHandlers;
+
         private readonly MiniGameSettings _settings;
         private readonly MiniGameView _view;
-
-        private readonly IPauseHandler[] _pauseHandlers;
 
         private Dictionary<MiniGameView, MiniGameModel> _activeGames;
 
@@ -77,16 +76,6 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
             }
         }
 
-        private void HandleClick(MiniGameView view)
-        {
-            var model = _activeGames[view];
-            _activeGames.Remove(view);
-
-            bool correctClick = model.CheckPosition();
-
-            FinishGame(correctClick, view, model);
-        }
-
         private void FinishGame(bool correctAction, MiniGameView view, MiniGameModel model)
         {
             if (correctAction)
@@ -104,6 +93,16 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
             view.Disable();
 
             SetPauseState(false);
+        }
+
+        private void HandleClick(MiniGameView view)
+        {
+            var model = _activeGames[view];
+            _activeGames.Remove(view);
+
+            bool correctClick = model.CheckPosition();
+
+            FinishGame(correctClick, view, model);
         }
 
         private void SetPauseState(bool state)

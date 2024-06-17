@@ -25,10 +25,10 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 
         void IReinitializable.Reinitialize()
         {
+            Clear(NetworkClient.localPlayer);
             _viewsByPlayer = null;
         }
 
-        [ServerCallback]
         public void Clear(NetworkIdentity netIdentity)
         {
             var itemsToDestroy = _viewsByPlayer.Where(x => x.Value == netIdentity).Select(item => item.Key).ToList();
@@ -39,14 +39,12 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             }
         }
 
-        [ServerCallback]
         public void DestroyFlag(FlagView view)
         {
             _viewsByPlayer.Remove(view);
             NetworkServer.Destroy(view.gameObject);
         }
 
-        [Command]
         public FlagView[] Spawn(Color color, NetworkIdentity netIdentity)
         {
             _viewsByPlayer ??= new Dictionary<FlagView, NetworkIdentity>();
@@ -60,7 +58,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             for (int i = 0; i < count; i++)
             {
                 var view = Object.Instantiate(_viewPrefab, _parent);
-                NetworkServer.Spawn(view.gameObject);
+                NetworkServer.Spawn(view.gameObject, netIdentity.connectionToClient);
                 view.SetColor(color);
                 _viewsByPlayer.Add(view, netIdentity);
             }

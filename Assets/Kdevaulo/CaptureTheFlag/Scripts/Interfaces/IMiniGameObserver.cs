@@ -1,6 +1,4 @@
-﻿using Kdevaulo.CaptureTheFlag.MiniGameBehaviour;
-
-namespace Kdevaulo.CaptureTheFlag
+﻿namespace Kdevaulo.CaptureTheFlag
 {
     public interface IMiniGameObserver
     {
