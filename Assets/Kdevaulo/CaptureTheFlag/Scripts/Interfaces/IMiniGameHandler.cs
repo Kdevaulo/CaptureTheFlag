@@ -1,9 +1,7 @@
-﻿using Mirror;
-
-namespace Kdevaulo.CaptureTheFlag
+﻿namespace Kdevaulo.CaptureTheFlag
 {
-    public interface IMiniGameHandler
+    public interface IMiniGameHandler : IMiniGameLostHandler
     {
-        void CallMiniGame(IMiniGameObserver observer, NetworkIdentity identity);
+        void CallMiniGame(IMiniGameObserver observer, IFlagInvader invader);
     }
 }

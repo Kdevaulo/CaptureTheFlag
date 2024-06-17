@@ -1,13 +1,21 @@
-﻿using UnityEngine;
+﻿using System;
+
+using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 {
     [AddComponentMenu(nameof(MiniGameView) + " in " + nameof(MiniGameBehaviour))]
-    public class MiniGameView : MonoBehaviour
+    public class MiniGameView : MonoBehaviour, IPointerClickHandler
     {
-        [SerializeField] private Transform _container;
+        public event Action<MiniGameView> Clicked = delegate { };
+
         [SerializeField] private Scrollbar _correctZoneScrollbar;
+
+        [SerializeField] private GameObject _miniGameContainer;
+
+        [SerializeField] private RectTransform _flagContainer;
         [SerializeField] private RectTransform _flagTransform;
 
         [Min(0)]
@@ -19,9 +27,18 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 
         private void Awake()
         {
-            var scrollTransform = _correctZoneScrollbar.GetComponent<RectTransform>();
-            _maxPosition = scrollTransform.rect.width - _boundsOffset;
+            _maxPosition = _flagContainer.rect.width - _boundsOffset;
             _flagTransform.anchoredPosition = new Vector2(_boundsOffset, 0);
+        }
+
+        void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
+        {
+            Clicked.Invoke(this);
+        }
+
+        public float GetCorrectAreaSize()
+        {
+            return _correctZoneScrollbar.size;
         }
 
         public void SetCorrectAreaPosition(float percentage)
@@ -29,27 +46,19 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
             _correctZoneScrollbar.value = Mathf.Clamp01(percentage);
         }
 
-        public void MoveFlag(float speed)
+        public void SetFlagPosition(float percentage)
         {
-            if (_flagTransform.anchoredPosition.x + speed > _maxPosition ||
-                _flagTransform.anchoredPosition.x - speed < _boundsOffset)
-            {
-                _movingRight = !_movingRight;
-            }
-
-            var offset = _movingRight ? new Vector2(speed, 0) : new Vector2(-speed, 0);
-
-            _flagTransform.anchoredPosition += offset;
+            _flagTransform.anchoredPosition = new Vector2(percentage * _maxPosition, 0);
         }
 
         public void Enable()
         {
-            _container.gameObject.SetActive(true);
+            _miniGameContainer.SetActive(true);
         }
 
         public void Disable()
         {
-            _container.gameObject.SetActive(false);
+            _miniGameContainer.SetActive(false);
         }
     }
 }

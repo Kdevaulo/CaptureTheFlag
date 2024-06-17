@@ -8,7 +8,5 @@ namespace Kdevaulo.CaptureTheFlag
     {
         NetworkIdentity GetNetIdentity();
         Vector3 GetPosition();
-        void HandleAllCaptured();
-        void HandleFlagCaptured();
     }
 }

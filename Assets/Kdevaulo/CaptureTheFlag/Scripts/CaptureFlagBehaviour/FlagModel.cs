@@ -18,24 +18,18 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         private float _secondsToCapture;
         private bool _waitingForMiniGame;
 
-        public FlagModel(Vector3 position, float secondsToCapture, float blockSeconds)
+        public FlagModel(Vector3 position, float secondsToCapture)
         {
             Position = position;
 
             _secondsToCapture = secondsToCapture;
-            _blockSeconds = blockSeconds;
 
             _waitingForMiniGame = false;
         }
 
-        void IMiniGameObserver.HandleMiniGameFinished(MiniGameState state)
+        void IMiniGameObserver.HandleMiniGameFinished()
         {
-            if (state == MiniGameState.Lose)
-            {
-                Block(_blockSeconds);
-            }
-
-            CanStartMiniGame = false;
+            CanStartMiniGame = true;
             _waitingForMiniGame = false;
         }
 
@@ -46,30 +40,13 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
                 return CaptureState.WaitingMiniGame;
             }
 
-            if (_blockTimeLeft <= 0)
-            {
-                _canCapture = true;
-            }
-
-            if (_canCapture)
-            {
-                _secondsToCapture -= Time.deltaTime;
-                return _secondsToCapture <= 0 ? CaptureState.Captured : CaptureState.Capturing;
-            }
-
-            _blockTimeLeft -= Time.deltaTime;
-            return CaptureState.Blocked;
+            _secondsToCapture -= Time.deltaTime;
+            return _secondsToCapture <= 0 ? CaptureState.Captured : CaptureState.Capturing;
         }
 
         public void WaitForMiniGame()
         {
             _waitingForMiniGame = true;
-        }
-
-        private void Block(float timeInSeconds)
-        {
-            _canCapture = false;
-            _blockTimeLeft = timeInSeconds;
         }
     }
 }

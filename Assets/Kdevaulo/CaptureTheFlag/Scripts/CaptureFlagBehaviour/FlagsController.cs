@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Mirror;
 
 using UnityEngine;
+using UnityEngine.Assertions;
+
+using Random = UnityEngine.Random;
 
 namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 {
@@ -12,17 +16,18 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         private readonly FlagSettings _settings;
         private readonly FlagSpawner _spawner;
 
-        private bool _canHandleFlags;
-
         private Dictionary<FlagView, FlagModel> _flags;
 
         private List<IFlagInvader> _invaders;
+        private Dictionary<IFlagInvader, float> _blockedInvaders;
         private Dictionary<IFlagInvader, int> _invadersCaptures;
 
         private int _maxFlags;
 
-        private float _miniGameChance;
+        private bool _canHandleFlags;
+
         private float _squaredRadius;
+        private float _miniGameChance;
 
         public FlagsController(FlagSettings settings, FlagSpawner spawner, IMiniGameHandler miniGameHandler)
         {
@@ -33,14 +38,17 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             _maxFlags = _settings.FlagsCount;
             _miniGameChance = _settings.MiniGameChance;
             _squaredRadius = _settings.FlagRadiusInUnits * _settings.FlagRadiusInUnits;
+
+            _miniGameHandler.HandleMiniGameLost += HandleMiniGameLost;
         }
 
         void IFlagInvaderObserver.AddInvaders(params IFlagInvader[] invaders)
         {
             _invaders ??= new List<IFlagInvader>();
-            _invaders.AddRange(invaders);
-
             _invadersCaptures ??= new Dictionary<IFlagInvader, int>();
+            _blockedInvaders ??= new Dictionary<IFlagInvader, float>();
+
+            _invaders.AddRange(invaders);
 
             foreach (var invader in invaders)
             {
@@ -85,13 +93,6 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             }
         }
 
-        private bool HandleFlagCaptured(IFlagInvader invader)
-        {
-            invader.HandleFlagCaptured();
-
-            return ++_invadersCaptures[invader] == _maxFlags;
-        }
-
         private void SetupFlags(FlagView[] flags)
         {
             _flags ??= new Dictionary<FlagView, FlagModel>();
@@ -101,7 +102,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
                 var position = _settings.GetPosition();
                 flagView.SetPosition(position);
 
-                var model = new FlagModel(position, _settings.SecondsToCapture, _settings.OnLoseDelay)
+                var model = new FlagModel(position, _settings.SecondsToCapture)
                 {
                     CanStartMiniGame = true
                 };
@@ -112,16 +113,43 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             _canHandleFlags = true;
         }
 
-        private void Stop()
+        private List<FlagView> TryCaptureFlags()
         {
-            _canHandleFlags = false;
+            List<FlagView> flagsToRemove = null;
 
-            foreach (var flag in _flags)
+            foreach (var invader in _invaders)
             {
-                _spawner.DestroyFlag(flag.Key);
+                if (IsInvaderBlocked(invader))
+                {
+                    Debug.Log("is blocked");
+                    continue;
+                }
+
+                foreach (var flag in _flags)
+                {
+                    float squaredDistance = (invader.GetPosition() - flag.Value.Position).sqrMagnitude;
+
+                    if (squaredDistance <= _squaredRadius)
+                    {
+                        var captureState = TryCaptureFlag(flag.Value, invader);
+
+                        if (captureState == CaptureState.CapturedLastFlag)
+                        {
+                            _canHandleFlags = false;
+
+                            flagsToRemove ??= new List<FlagView>();
+                            flagsToRemove.AddRange(_flags.Keys);
+                        }
+                        else if (captureState == CaptureState.Captured)
+                        {
+                            flagsToRemove ??= new List<FlagView>();
+                            flagsToRemove.Add(flag.Key);
+                        }
+                    }
+                }
             }
 
-            _flags.Clear();
+            return flagsToRemove;
         }
 
         private CaptureState TryCaptureFlag(FlagModel model, IFlagInvader invader)
@@ -147,10 +175,6 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 
                     break;
 
-                case CaptureState.Blocked:
-                    // todo: blocked flag timer tick?
-                    break;
-
                 case CaptureState.WaitingMiniGame:
                     break;
             }
@@ -158,35 +182,32 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             return captureState;
         }
 
-        private List<FlagView> TryCaptureFlags()
+        private bool IsInvaderBlocked(IFlagInvader invader)
         {
-            List<FlagView> flagsToRemove = null;
-
-            foreach (var flag in _flags)
+            if (_blockedInvaders.TryGetValue(invader, out float blockTimeLeft))
             {
-                foreach (var invader in _invaders)
+                blockTimeLeft -= Time.deltaTime;
+
+                if (blockTimeLeft <= 0)
                 {
-                    float squaredDistance = (invader.GetPosition() - flag.Value.Position).sqrMagnitude;
+                    _blockedInvaders.Remove(invader);
 
-                    if (squaredDistance <= _squaredRadius)
-                    {
-                        var captureState = TryCaptureFlag(flag.Value, invader);
-
-                        if (captureState == CaptureState.CapturedLastFlag)
-                        {
-                            Stop();
-                            invader.HandleAllCaptured();
-                        }
-                        else if (captureState == CaptureState.Captured)
-                        {
-                            flagsToRemove ??= new List<FlagView>();
-                            flagsToRemove.Add(flag.Key);
-                        }
-                    }
+                    Debug.Log("Unblocked");
+                    
+                    return false;
                 }
+
+                _blockedInvaders[invader] = blockTimeLeft;
+
+                return true;
             }
 
-            return flagsToRemove;
+            return false;
+        }
+
+        private bool HandleFlagCaptured(IFlagInvader invader)
+        {
+            return ++_invadersCaptures[invader] == _maxFlags;
         }
 
         private void TryStartMiniGame(FlagModel model, IFlagInvader invader)
@@ -194,8 +215,16 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             if (model.CanStartMiniGame && Random.value < _miniGameChance)
             {
                 model.WaitForMiniGame();
-                _miniGameHandler.CallMiniGame(model, invader.GetNetIdentity());
+                _miniGameHandler.CallMiniGame(model, invader);
             }
+        }
+
+        private void HandleMiniGameLost(IFlagInvader invader)
+        {
+            Assert.IsFalse(_blockedInvaders.ContainsKey(invader));
+
+            _blockedInvaders.Add(invader, _settings.OnLoseDelay);
+            Debug.Log("Added to block");
         }
     }
 }

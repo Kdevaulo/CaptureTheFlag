@@ -5,17 +5,17 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
     public class PlayerMovement
     {
         private readonly float _movementSensitivity;
-        private readonly UserInput _userInput;
+        private readonly UserInputHandler _userInputHandler;
 
         private PlayerView _playerView;
 
-        public PlayerMovement(UserInput userInput, PlayerSettings settings)
+        public PlayerMovement(UserInputHandler userInputHandler, PlayerSettings settings)
         {
-            _userInput = userInput;
+            _userInputHandler = userInputHandler;
             _movementSensitivity = settings.PlayerMovementSensitivity;
 
-            _userInput.MoveVertical += HandleVerticalMovement;
-            _userInput.MoveHorizontal += HandleHorizontalMovement;
+            _userInputHandler.MoveVertical += HandleVerticalMovement;
+            _userInputHandler.MoveHorizontal += HandleHorizontalMovement;
         }
 
         public void SetPlayer(PlayerView playerView)

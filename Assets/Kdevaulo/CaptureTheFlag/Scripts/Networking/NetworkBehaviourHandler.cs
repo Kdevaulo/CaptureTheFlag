@@ -25,9 +25,9 @@ namespace Kdevaulo.CaptureTheFlag.Networking
             NetworkClient.Send(message);
         }
 
-        public void SetMessageCaller(ILostMessageCaller messageCaller)
+        public void SetMessageCaller(IMiniGameLostHandler handler)
         {
-            messageCaller.CallLostMessage += CallLostMessage;
+            handler.HandleMiniGameLost += CallLostMessage;
         }
 
         [Server]
@@ -38,8 +38,10 @@ namespace Kdevaulo.CaptureTheFlag.Networking
                 $"Player connected - Id = {message.Id}");
         }
 
-        private void CallLostMessage(NetworkIdentity identity)
+        private void CallLostMessage(IFlagInvader invader)
         {
+            var identity = invader.GetNetIdentity();
+
             var message = new MiniGameLoseMessage()
             {
                 Message = LocalizationStrings.LoseMessage,

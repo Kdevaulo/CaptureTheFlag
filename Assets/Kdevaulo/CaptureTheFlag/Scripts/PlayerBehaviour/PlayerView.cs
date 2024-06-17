@@ -47,16 +47,6 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             return netIdentity;
         }
 
-        void IFlagInvader.HandleFlagCaptured()
-        {
-            //todo: capturedParticles
-        }
-
-        void IFlagInvader.HandleAllCaptured()
-        {
-            Debug.Log(_propertyBlock.GetColor("_Color") + " Won!");
-        }
-
         public void SetColor(Color color)
         {
             _propertyBlock.SetColor("_Color", color);

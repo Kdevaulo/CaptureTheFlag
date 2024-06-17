@@ -4,6 +4,6 @@ namespace Kdevaulo.CaptureTheFlag
 {
     public interface IMiniGameObserver
     {
-        void HandleMiniGameFinished(MiniGameState state);
+        void HandleMiniGameFinished();
     }
 }
