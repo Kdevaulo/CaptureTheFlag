@@ -17,7 +17,7 @@ MonoBehaviour:
   <FlagRadiusInUnits>k__BackingField: 1
   <OnLoseDelay>k__BackingField: 2
   <SecondsToCapture>k__BackingField: 4
-  <MiniGameChance>k__BackingField: 0.331
+  <MiniGameChance>k__BackingField: 0.001
   <SpawnPositions>k__BackingField:
   - {x: -2, y: 0, z: -4}
   - {x: 2, y: 0, z: 4}
