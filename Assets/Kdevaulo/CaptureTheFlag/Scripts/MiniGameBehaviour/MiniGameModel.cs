@@ -4,7 +4,7 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 {
     public class MiniGameModel
     {
-        public IFlagInvader Invader { get; private set; }
+        public IPlayer Player { get; private set; }
         public IMiniGameObserver Observer { get; private set; }
 
         public float Position { get; private set; }
@@ -15,10 +15,10 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 
         private float _timeLeft;
 
-        public MiniGameModel(IMiniGameObserver observer, IFlagInvader invader, float timeLeft, float correctPosition,
+        public MiniGameModel(IMiniGameObserver observer, IPlayer player, float timeLeft, float correctPosition,
             float movementSpeed, float correctAreaSize)
         {
-            Invader = invader;
+            Player = player;
             Observer = observer;
 
             _timeLeft = timeLeft;

@@ -46,20 +46,18 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         {
             var targetPosition = BorrowFirstFreePosition();
 
-            if (targetPosition == Vector3.positiveInfinity)
-            {
-                RefreshFlags();
-
-                targetPosition = BorrowFirstFreePosition();
-
-                Assert.IsFalse(targetPosition == Vector3.positiveInfinity);
-            }
+            Assert.IsFalse(float.IsInfinity(targetPosition.x));
 
             return targetPosition;
         }
 
         private Vector3 BorrowFirstFreePosition()
         {
+            if (!_flagsPositions.ContainsValue(false))
+            {
+                RefreshFlags();
+            }
+            
             foreach (var flagPosition in _flagsPositions)
             {
                 if (flagPosition.Value == false)
@@ -69,6 +67,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
                 }
             }
 
+            
             return Vector3.positiveInfinity;
         }
 

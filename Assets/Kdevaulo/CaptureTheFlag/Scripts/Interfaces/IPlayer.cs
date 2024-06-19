@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag
 {
-    public interface IFlagInvader
+    public interface IPlayer
     {
-        NetworkIdentity GetNetIdentity();
+        GameObject GetOwner();
         Vector3 GetPosition();
     }
 }

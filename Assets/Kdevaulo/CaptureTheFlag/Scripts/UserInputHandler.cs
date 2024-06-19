@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag
 {
-    public class UserInputHandler : IUpdatable, IPauseHandler
+    public class UserInputHandler : IUpdatable, IPauseHandler, IMovementProvider
     {
         public event Action<float> MoveHorizontal = delegate { };
         public event Action<float> MoveVertical = delegate { };
 
         private readonly Joystick _joystick;
 
-        private bool _isPaused;
+        private bool _canHandle = true;
 
         public UserInputHandler(Joystick joystick)
         {
@@ -20,17 +20,17 @@ namespace Kdevaulo.CaptureTheFlag
 
         void IPauseHandler.HandlePause()
         {
-            _isPaused = true;
+            _canHandle = true;
         }
 
         void IPauseHandler.HandleResume()
         {
-            _isPaused = false;
+            _canHandle = false;
         }
 
         void IUpdatable.Update()
         {
-            if (_isPaused)
+            if (!_canHandle)
             {
                 return;
             }

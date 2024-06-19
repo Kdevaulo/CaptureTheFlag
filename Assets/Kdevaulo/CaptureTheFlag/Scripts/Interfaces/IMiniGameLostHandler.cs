@@ -4,6 +4,6 @@ namespace Kdevaulo.CaptureTheFlag
 {
     public interface IMiniGameLostHandler
     {
-        event Action<IFlagInvader> HandleMiniGameLost;
+        event Action<IPlayer> HandleMiniGameLost;
     }
 }

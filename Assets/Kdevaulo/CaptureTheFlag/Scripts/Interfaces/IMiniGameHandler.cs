@@ -2,6 +2,6 @@
 {
     public interface IMiniGameHandler : IMiniGameLostHandler
     {
-        void CallMiniGame(IMiniGameObserver observer, IFlagInvader invader);
+        void CallMiniGame(IMiniGameObserver observer, IPlayer player);
     }
 }

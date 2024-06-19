@@ -11,7 +11,7 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 {
     public class MiniGameController : IUpdatable, IMiniGameHandler
     {
-        public event Action<IFlagInvader> HandleMiniGameLost = delegate { };
+        public event Action<IPlayer> HandleMiniGameLost = delegate { };
 
         private readonly IPauseHandler[] _pauseHandlers;
 
@@ -32,9 +32,9 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
             _view.Disable();
         }
 
-        void IMiniGameHandler.CallMiniGame(IMiniGameObserver observer, IFlagInvader invader)
+        void IMiniGameHandler.CallMiniGame(IMiniGameObserver observer, IPlayer player)
         {
-            if (NetworkClient.connection.identity != invader.GetNetIdentity())
+            if (NetworkClient.connection.identity.gameObject != player.GetOwner())
             {
                 return;
             }
@@ -43,7 +43,7 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
             _view.SetCorrectAreaPosition(correctPosition);
             _view.Enable();
 
-            var model = new MiniGameModel(observer, invader, _settings.GameDurationInSeconds, correctPosition,
+            var model = new MiniGameModel(observer, player, _settings.GameDurationInSeconds, correctPosition,
                 _settings.MovementSpeed, _view.GetCorrectAreaSize());
 
             _activeGames.Add(_view, model);
@@ -85,7 +85,7 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
             else
             {
                 Debug.Log("IncorrectAction");
-                HandleMiniGameLost.Invoke(model.Invader);
+                HandleMiniGameLost.Invoke(model.Player);
             }
 
             model.Observer.HandleMiniGameFinished();

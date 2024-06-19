@@ -1,48 +1,83 @@
-﻿using Mirror;
+﻿using System.Collections.Generic;
+
+using Mirror;
 
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
-    public class PlayerController
+    public class PlayerController : IPlayerProvider, IPlayerMovementHandler, IClientDisconnectionHandler
     {
-        private readonly IColorProvider _colorProvider;
+        private readonly IMovementProvider _movementProvider;
 
+        private readonly PlayerMover _mover;
         private readonly PlayerFactory _factory;
-        private readonly IFlagSpawner _flagSpawner;
-        private readonly INetworkHandler _networkHandler;
-        private readonly IFlagInvaderObserver _observer;
-        private readonly PlayerMovement _playerMovement;
+        private readonly MovableProvider _movableProvider;
 
-        public PlayerController(INetworkHandler networkHandler, PlayerMovement playerMovement, PlayerFactory factory,
-            IColorProvider colorProvider, IFlagSpawner flagSpawner, IFlagInvaderObserver observer)
+        private Dictionary<int, PlayerView> _playersByIds = new Dictionary<int, PlayerView>();
+
+        private IMovable _localPlayer;
+
+        public PlayerController(PlayerFactory factory, PlayerMover mover, MovableProvider movableProvider,
+            IMovementProvider movementProvider)
         {
             _factory = factory;
-            _playerMovement = playerMovement;
+            _mover = mover;
+            _movableProvider = movableProvider;
 
-            _flagSpawner = flagSpawner;
-            _observer = observer;
-            _colorProvider = colorProvider;
-            _networkHandler = networkHandler;
+            _movementProvider = movementProvider;
 
-            _networkHandler.ClientConnected += HandleClientConnected;
+            _movableProvider.MovableSet += HandleMovableSet;
+
+            _movementProvider.MoveHorizontal += HandleHorizontalMovement;
+            _movementProvider.MoveVertical += HandleVerticalMovement;
         }
 
-        private void HandleClientConnected(NetworkConnectionToClient connection)
+        [Client]
+        private void HandleMovableSet()
         {
-            Debug.Log("Connected");
-            var color = _colorProvider.GetColor();
+            _localPlayer = _movableProvider.Movable;
+        }
 
+        [Client]
+        private void HandleHorizontalMovement(float offset)
+        {
+            _localPlayer.TryMove(offset, 0);
+        }
+
+        [Client]
+        private void HandleVerticalMovement(float offset)
+        {
+            _localPlayer.TryMove(0, offset);
+        }
+
+        [Server]
+        void IPlayerMovementHandler.TryMovePlayer(int id, float moveHorizontal, float moveVertical)
+        {
+            Assert.IsTrue(_playersByIds.ContainsKey(id));
+
+            var player = _playersByIds[id];
+
+            _mover.HandlePlayerMovement(player, moveHorizontal, moveVertical);
+        }
+
+        [Server]
+        PlayerView IPlayerProvider.SpawnPlayer(int id)
+        {
             var view = _factory.Create();
-            NetworkServer.AddPlayerForConnection(connection, view.gameObject);
 
-            view.SetColor(color);
+            _playersByIds.Add(id, view);
 
-            _observer.AddInvaders(view);
+            return view;
+        }
 
-            _flagSpawner.Spawn(color, view.GetNetIdentity());
-
-            _playerMovement.SetPlayer(view, connection.identity);
+        [Server]
+        void IClientDisconnectionHandler.HandleClientDisconnected(int id)
+        {
+            Assert.IsTrue(_playersByIds.ContainsKey(id));
+            
+            _playersByIds.Remove(id);
         }
     }
 }
