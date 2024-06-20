@@ -1,7 +1,10 @@
-﻿namespace Kdevaulo.CaptureTheFlag
+﻿using System;
+
+namespace Kdevaulo.CaptureTheFlag
 {
-    public interface IMiniGameHandler : IMiniGameLostHandler
+    public interface IMiniGameHandler : IMiniGameClientInitializer
     {
-        void CallMiniGame(IMiniGameObserver observer, IPlayer player);
+        event Action<IPlayer> HandleMiniGameLost;
+        void ServerCallMiniGame(IMiniGameObserver observer, IPlayer player);
     }
 }

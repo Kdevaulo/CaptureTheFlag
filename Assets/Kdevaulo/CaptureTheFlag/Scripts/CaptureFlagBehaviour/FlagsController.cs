@@ -51,7 +51,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             _invaders = null;
             _invadersCaptures = null;
         }
-
+        
         void IUpdatable.Update()
         {
             if (_canHandleFlags)
@@ -99,6 +99,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             AddInvader(player);
         }
 
+        [Server]
         private bool IsInvaderBlocked(IPlayer player)
         {
             if (_blockedInvaders.TryGetValue(player, out float blockTimeLeft))
@@ -122,6 +123,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             return false;
         }
 
+        [Server]
         private void SetupFlags(FlagView[] flags, GameObject owner)
         {
             _flags ??= new Dictionary<FlagView, FlagModel>();
@@ -151,6 +153,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             SetupFlags(flagViews, owner);
         }
 
+        [Server]
         private CaptureState TryCaptureFlag(FlagModel model, IPlayer player)
         {
             var captureState = model.TryCapture();
@@ -181,6 +184,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             return captureState;
         }
 
+        [Server]
         private List<FlagView> TryCaptureFlags()
         {
             List<FlagView> flagsToRemove = null;
@@ -228,12 +232,13 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             return flagsToRemove;
         }
 
+        [Server]
         private void TryStartMiniGame(FlagModel model, IPlayer player)
         {
             if (model.CanStartMiniGame && Random.value < _miniGameChance)
             {
                 model.WaitForMiniGame();
-                _miniGameHandler.CallMiniGame(model, player);
+                _miniGameHandler.ServerCallMiniGame(model, player);
             }
         }
     }

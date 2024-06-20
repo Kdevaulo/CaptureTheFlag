@@ -18,7 +18,11 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
         private readonly MiniGameSettings _settings;
         private readonly MiniGameView _view;
 
-        private Dictionary<MiniGameView, MiniGameModel> _activeGames;
+        private Dictionary<string, StakeholdersData> _stakeholdersByIds;
+
+        private MiniGameModel _model;
+
+        private bool _initialized;
 
         public MiniGameController(MiniGameView view, MiniGameSettings settings, params IPauseHandler[] pauseHandlers)
         {
@@ -26,85 +30,101 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
             _settings = settings;
             _pauseHandlers = pauseHandlers;
 
-            _activeGames = new Dictionary<MiniGameView, MiniGameModel>();
+            _stakeholdersByIds = new Dictionary<string, StakeholdersData>();
 
             _view.Clicked += HandleClick;
             _view.Disable();
         }
 
-        void IMiniGameHandler.CallMiniGame(IMiniGameObserver observer, IPlayer player)
+        [Server]
+        void IMiniGameHandler.ServerCallMiniGame(IMiniGameObserver observer, IPlayer player)
         {
-            if (NetworkClient.connection.identity.gameObject != player.GetOwner())
-            {
-                return;
-            }
-
             float correctPosition = Random.value;
-            _view.SetCorrectAreaPosition(correctPosition);
-            _view.Enable();
 
-            var model = new MiniGameModel(observer, player, _settings.GameDurationInSeconds, correctPosition,
-                _settings.MovementSpeed, _view.GetCorrectAreaSize());
+            string guid = Guid.NewGuid().ToString();
 
-            _activeGames.Add(_view, model);
+            var data = new MiniGameData
+            {
+                Guid = guid,
+                Duration = _settings.GameDurationInSeconds,
+                CorrectPosition = correctPosition,
+                MovementSpeed = _settings.MovementSpeed,
+                CorrectAreaSize = _view.GetCorrectAreaSize()
+            };
 
-            SetPauseState(true);
+            var stakeholders = new StakeholdersData(observer, player);
+            _stakeholdersByIds.Add(guid, stakeholders);
+
+            player.InitializeMiniGame(player.GetId(), data);
         }
 
         void IUpdatable.Update()
         {
-            MiniGameView itemToRemove = null;
-
-            foreach (var pair in _activeGames)
+            if (_initialized)
             {
-                var model = pair.Value;
-                var view = pair.Key;
+                _model.Move(Time.deltaTime);
+                _view.SetFlagPosition(_model.Position);
 
-                model.Move(Time.deltaTime);
-                view.SetFlagPosition(model.Position);
-
-                if (model.IsTimeOver())
+                if (_model.IsTimeOver())
                 {
-                    itemToRemove = view;
-                    FinishGame(false, view, model);
-                }
-            }
+                    SendEvents(false, _model.Guid);
 
-            if (itemToRemove != null)
-            {
-                _activeGames.Remove(itemToRemove);
+                    StopMiniGame();
+                }
             }
         }
 
-        private void FinishGame(bool correctAction, MiniGameView view, MiniGameModel model)
+        [Client]
+        private void StopMiniGame()
         {
-            if (correctAction)
+            SetPauseState(false);
+            _view.Disable();
+            _initialized = false;
+        }
+
+        [Client]
+        void IMiniGameClientInitializer.InitializeMiniGame(MiniGameData data)
+        {
+            _model = new MiniGameModel(data);
+
+            _view.SetCorrectAreaPosition(data.CorrectPosition);
+            _view.SetFlagPosition(0);
+            _view.Enable();
+
+            SetPauseState(true);
+
+            _initialized = true;
+        }
+
+        [Client]
+        private void HandleClick()
+        {
+            bool isCorrectClick = _model.CheckPosition();
+
+            StopMiniGame();
+
+            SendEvents(isCorrectClick, _model.Guid);
+        }
+
+        [Command]
+        private void SendEvents(bool isCorrectAction, string guid)
+        {
+            var stakeholders = _stakeholdersByIds[guid];
+
+            if (isCorrectAction)
             {
                 Debug.Log("CorrectAction");
             }
             else
             {
                 Debug.Log("IncorrectAction");
-                HandleMiniGameLost.Invoke(model.Player);
+                HandleMiniGameLost.Invoke(stakeholders.Player);
             }
 
-            model.Observer.HandleMiniGameFinished();
-
-            view.Disable();
-
-            SetPauseState(false);
+            stakeholders.Observer.HandleMiniGameFinished();
         }
 
-        private void HandleClick(MiniGameView view)
-        {
-            var model = _activeGames[view];
-            _activeGames.Remove(view);
-
-            bool correctClick = model.CheckPosition();
-
-            FinishGame(correctClick, view, model);
-        }
-
+        [Client]
         private void SetPauseState(bool state)
         {
             foreach (var handler in _pauseHandlers)

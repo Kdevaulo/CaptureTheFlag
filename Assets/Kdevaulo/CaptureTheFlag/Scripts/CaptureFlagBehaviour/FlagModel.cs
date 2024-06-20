@@ -13,9 +13,9 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         private readonly float _blockSeconds;
 
         private float _blockTimeLeft;
+        private float _secondsToCapture;
 
         private bool _canCapture;
-        private float _secondsToCapture;
         private bool _waitingForMiniGame;
 
         public FlagModel(GameObject owner, Vector3 position, float secondsToCapture)

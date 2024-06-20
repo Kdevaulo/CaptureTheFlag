@@ -1,4 +1,6 @@
-﻿using Mirror;
+﻿using Kdevaulo.CaptureTheFlag.MiniGameBehaviour;
+
+using Mirror;
 
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -20,6 +22,8 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 
         private int _connectionId = -1;
 
+        private MonoBehaviourProvider _mediator;
+
         private MaterialPropertyBlock _propertyBlock;
 
         private void Awake()
@@ -27,10 +31,28 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             _propertyBlock = new MaterialPropertyBlock();
         }
 
+        int IPlayer.GetId()
+        {
+            return _connectionId;
+        }
+
         [Client]
         Vector3 IPlayer.GetPosition()
         {
             return transform.position;
+        }
+
+        [Server]
+        void IPlayer.InitializeMiniGame(int connectionId, MiniGameData data)
+        {
+            var targetConnection = NetworkServer.connections[connectionId];
+            InitializeMiniGame(targetConnection, data);
+        }
+
+        [TargetRpc]
+        private void InitializeMiniGame(NetworkConnectionToClient _, MiniGameData data)
+        {
+            _mediator.InitializeMiniGame(data);
         }
 
         [Client]
@@ -44,6 +66,8 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         {
             Assert.IsTrue(isLocalPlayer);
 
+            Assert.IsFalse(_connectionId == -1, "ConnectionId == -1");
+
             MovePlayer(_connectionId, moveHorizontal, moveVertical);
         }
 
@@ -51,14 +75,17 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         public void Initialize(NetworkConnectionToClient connection, IPlayerMovementHandler movementHandler)
         {
             _movementHandler = movementHandler;
+
             HandlePlayerInitialized(connection, connection.connectionId);
         }
 
         [TargetRpc]
         private void HandlePlayerInitialized(NetworkConnectionToClient _, int connectionId)
         {
-            var mediator = FindObjectOfType<MovableProvider>();
-            mediator.SetMovable(this);
+            _mediator = FindObjectOfType<MonoBehaviourProvider>();
+            _mediator.SetMovable(this);
+
+            Assert.IsFalse(connectionId == -1, "ConnectionId == -1");
 
             _connectionId = connectionId;
 

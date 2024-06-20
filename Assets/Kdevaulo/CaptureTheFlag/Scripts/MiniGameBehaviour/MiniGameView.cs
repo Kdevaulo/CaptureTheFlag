@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Mirror;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -22,6 +24,7 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
         private float _maxPosition;
 
         private bool _movingRight;
+        public event Action Clicked = delegate { };
 
         private void Awake()
         {
@@ -31,16 +34,15 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 
         void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
         {
-            Clicked.Invoke(this);
+            Clicked.Invoke();
         }
-
-        public event Action<MiniGameView> Clicked = delegate { };
 
         public float GetCorrectAreaSize()
         {
             return _correctZoneScrollbar.size;
         }
 
+        
         public void SetCorrectAreaPosition(float percentage)
         {
             _correctZoneScrollbar.value = Mathf.Clamp01(percentage);

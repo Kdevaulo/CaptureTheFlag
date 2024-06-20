@@ -1,30 +1,31 @@
-﻿using UnityEngine;
+﻿using System;
+
+using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 {
-    public class MiniGameModel
+    [Serializable]
+    public struct MiniGameModel
     {
-        public IPlayer Player { get; private set; }
-        public IMiniGameObserver Observer { get; private set; }
-
+        public string Guid { get; private set; }
         public float Position { get; private set; }
 
         private readonly float _correctAreaSize;
-        private readonly float _correctPosition;
+
+        private float _correctPosition;
         private float _movementSpeed;
 
         private float _timeLeft;
 
-        public MiniGameModel(IMiniGameObserver observer, IPlayer player, float timeLeft, float correctPosition,
-            float movementSpeed, float correctAreaSize)
+        public MiniGameModel(MiniGameData data)
         {
-            Player = player;
-            Observer = observer;
+            Guid = data.Guid;
+            Position = 0;
+            _correctPosition = data.CorrectPosition;
 
-            _timeLeft = timeLeft;
-            _movementSpeed = movementSpeed;
-            _correctAreaSize = correctAreaSize;
-            _correctPosition = correctPosition;
+            _timeLeft = data.Duration;
+            _movementSpeed = data.MovementSpeed;
+            _correctAreaSize = data.CorrectAreaSize;
         }
 
         public bool CheckPosition()

@@ -13,13 +13,13 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 
         private readonly PlayerMover _mover;
         private readonly PlayerFactory _factory;
-        private readonly MovableProvider _movableProvider;
+        private readonly MonoBehaviourProvider _movableProvider;
 
         private Dictionary<int, PlayerView> _playersByIds = new Dictionary<int, PlayerView>();
 
         private IMovable _localPlayer;
 
-        public PlayerController(PlayerFactory factory, PlayerMover mover, MovableProvider movableProvider,
+        public PlayerController(PlayerFactory factory, PlayerMover mover, MonoBehaviourProvider movableProvider,
             IMovementProvider movementProvider)
         {
             _factory = factory;
