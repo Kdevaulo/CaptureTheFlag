@@ -133,7 +133,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
                 var position = _settings.GetPosition();
                 flagView.SetPosition(position);
 
-                var model = new FlagModel(position, _settings.SecondsToCapture)
+                var model = new FlagModel(owner, position, _settings.SecondsToCapture)
                 {
                     CanStartMiniGame = true
                 };
@@ -189,12 +189,20 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             {
                 if (IsInvaderBlocked(invader))
                 {
-                    Debug.Log("is blocked");
                     continue;
                 }
 
+                var owner = invader.GetOwner();
+
                 foreach (var flag in _flags)
                 {
+                    bool canCapture = flag.Value.CheckOwner(owner);
+
+                    if (!canCapture)
+                    {
+                        continue;
+                    }
+
                     float squaredDistance = (invader.GetPosition() - flag.Value.Position).sqrMagnitude;
 
                     if (squaredDistance <= _squaredRadius)

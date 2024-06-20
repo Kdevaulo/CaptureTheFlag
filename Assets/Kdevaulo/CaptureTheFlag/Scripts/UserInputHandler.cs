@@ -20,12 +20,12 @@ namespace Kdevaulo.CaptureTheFlag
 
         void IPauseHandler.HandlePause()
         {
-            _canHandle = true;
+            _canHandle = false;
         }
 
         void IPauseHandler.HandleResume()
         {
-            _canHandle = false;
+            _canHandle = true;
         }
 
         void IUpdatable.Update()

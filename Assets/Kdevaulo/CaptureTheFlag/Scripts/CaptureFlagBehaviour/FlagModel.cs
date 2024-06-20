@@ -8,6 +8,8 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 
         public Vector3 Position { get; private set; }
 
+        private readonly GameObject _owner;
+
         private readonly float _blockSeconds;
 
         private float _blockTimeLeft;
@@ -16,10 +18,11 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         private float _secondsToCapture;
         private bool _waitingForMiniGame;
 
-        public FlagModel(Vector3 position, float secondsToCapture)
+        public FlagModel(GameObject owner, Vector3 position, float secondsToCapture)
         {
             Position = position;
 
+            _owner = owner;
             _secondsToCapture = secondsToCapture;
 
             _waitingForMiniGame = false;
@@ -45,6 +48,11 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         public void WaitForMiniGame()
         {
             _waitingForMiniGame = true;
+        }
+
+        public bool CheckOwner(GameObject target)
+        {
+            return target == _owner;
         }
     }
 }
