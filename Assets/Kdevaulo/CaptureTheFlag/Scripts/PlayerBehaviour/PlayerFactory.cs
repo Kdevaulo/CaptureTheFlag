@@ -16,7 +16,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         public PlayerView Create()
         {
             var playerView = Object.Instantiate(_view, _parent);
-            playerView.SetPosition(Vector3.zero);
+            playerView.SetPosition(_parent.position);
 
             return playerView;
         }

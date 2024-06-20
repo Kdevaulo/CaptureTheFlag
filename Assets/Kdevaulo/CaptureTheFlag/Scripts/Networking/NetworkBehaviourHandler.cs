@@ -18,10 +18,10 @@ namespace Kdevaulo.CaptureTheFlag.Networking
         private IPlayerProvider _playerProvider;
         private IPlayerMovementHandler _movementHandler;
 
-        private PlayerTuner _playerTuner;
+        private IPlayerTuner _playerTuner;
 
         public void Initialize(IPlayerProvider playerProvider, IPlayerMovementHandler movementHandler,
-            PlayerTuner playerTuner)
+            IPlayerTuner playerTuner)
         {
             _playerTuner = playerTuner;
             _playerProvider = playerProvider;
