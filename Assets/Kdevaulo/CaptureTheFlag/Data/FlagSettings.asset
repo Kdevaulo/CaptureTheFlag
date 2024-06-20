@@ -19,13 +19,13 @@ MonoBehaviour:
   <SecondsToCapture>k__BackingField: 4
   <MiniGameChance>k__BackingField: 0.001
   <SpawnPositions>k__BackingField:
-  - {x: -2, y: 0, z: -4}
-  - {x: 2, y: 0, z: 4}
-  - {x: 4, y: 0, z: 2}
-  - {x: -4, y: 0, z: -4}
-  - {x: 4, y: 0, z: 4}
-  - {x: 0, y: 0, z: 3}
-  - {x: 2, y: 0, z: 2}
-  - {x: -2, y: 0, z: -2}
-  - {x: 0, y: 0, z: 0}
-  - {x: 3, y: 0, z: 0}
+  - {x: -2, y: 0.01, z: -4}
+  - {x: 2, y: 0.01, z: 4}
+  - {x: 4, y: 0.01, z: 2}
+  - {x: -4, y: 0.01, z: -4}
+  - {x: 4, y: 0.01, z: 4}
+  - {x: 0, y: 0.01, z: 3}
+  - {x: 2, y: 0.01, z: 2}
+  - {x: -2, y: 0.01, z: -2}
+  - {x: 0, y: 0.01, z: 0}
+  - {x: 3, y: 0.01, z: 0}
