@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <FlagsCount>k__BackingField: 3
   <CursorSpeed>k__BackingField: 1
-  <FlagRadiusInUnits>k__BackingField: 1
+  <FlagRadiusInUnits>k__BackingField: 0.5
   <OnLoseDelay>k__BackingField: 2
   <SecondsToCapture>k__BackingField: 4
-  <MiniGameChance>k__BackingField: 0.001
+  <MiniGameChance>k__BackingField: 0.005
   <SpawnPositions>k__BackingField:
   - {x: -2, y: 0.01, z: -4}
   - {x: 2, y: 0.01, z: 4}
