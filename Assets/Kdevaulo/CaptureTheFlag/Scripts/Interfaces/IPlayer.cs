@@ -6,11 +6,10 @@ using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag
 {
-    public interface IPlayer
+    public interface IPlayer : IMiniGameActionsProvider
     {
         GameObject GetOwner();
         int GetId();
         Vector3 GetPosition();
-        void InitializeMiniGame(int id, MiniGameData data);
     }
 }

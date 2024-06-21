@@ -26,7 +26,7 @@ namespace Kdevaulo.CaptureTheFlag
         [SerializeField] private PlayerView _playerView;
         [SerializeField] private Transform _playersContainer;
         [SerializeField] private PlayerSettings _playerSettings;
-        [SerializeField] private MonoBehaviourProvider _monoBehaviourProvider;
+        [SerializeField] private ClientDataProvider _clientDataProvider;
         [Header("Network")]
         [SerializeField] private NetworkBehaviourHandler _networkHandler;
 
@@ -76,22 +76,21 @@ namespace Kdevaulo.CaptureTheFlag
             _uiMessageController = new UIMessageController(_uiMessageView, _uiMessageSettings);
             _miniGameController = new MiniGameController(_miniGameView, _miniGameSettings, _userInputHandler);
             _flagsController = new FlagsController(_flagSettings, _flagFactory, _miniGameController, _playerTuner);
-            _playerController = new PlayerController(_factory, _playerMover, _monoBehaviourProvider, _userInputHandler);
+            _playerController = new PlayerController(_factory, _playerMover, _clientDataProvider, _userInputHandler);
 
             _flagSettings.Initialize();
-            _monoBehaviourProvider.Initialize(_miniGameController);
-            _networkHandler.Initialize(_playerController, _playerController, _playerTuner);
+            _clientDataProvider.Initialize(_miniGameController, _miniGameController);
+            _networkHandler.Initialize(_playerController, _playerController, _playerTuner, _miniGameController);
         }
 
         private void SetupInterfaces()
         {
             _clearables = new IClearable[] { _flagsController };
-            //_reinitializables = new IReinitializable[] { _flagSettings, _flagSpawner, _flagsController };
+
             _updatables = new IUpdatable[]
                 { _userInputHandler, _flagsController, _miniGameController, _uiMessageController };
 
-            _disconnectionHandlers = new IClientDisconnectionHandler[]
-                { _playerController };
+            _disconnectionHandlers = new IClientDisconnectionHandler[] { _playerController };
         }
 
         private void SubscribeEvents()

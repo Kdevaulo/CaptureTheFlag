@@ -3,7 +3,6 @@
 using Mirror;
 
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 {
@@ -12,23 +11,36 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
     {
         [SerializeField] private MeshRenderer _meshRenderer;
 
-        private IPlayerMovementHandler _movementHandler;
-
         [SyncVar(hook = nameof(HandleColorUpdated))]
         private Color _color;
 
-        [SyncVar(hook = nameof(HandlePositionChanged))]
-        private Vector3 _position;
-
         private int _connectionId = -1;
 
-        private MonoBehaviourProvider _mediator;
+        private ClientDataProvider _mediator;
+
+        private IPlayerMovementHandler _movementHandler;
+        private IMiniGameEventsHandler _miniGameEventsHandler;
+
+        [SyncVar(hook = nameof(HandlePositionChanged))]
+        private Vector3 _position;
 
         private MaterialPropertyBlock _propertyBlock;
 
         private void Awake()
         {
             _propertyBlock = new MaterialPropertyBlock();
+        }
+
+        [Command(requiresAuthority = false)]
+        void IMiniGameActionsProvider.CmdSendEvents(bool isCorrectAction, string guid)
+        {
+            _miniGameEventsHandler.SendEvents(isCorrectAction, guid);
+        }
+
+        [Client]
+        void IMovable.TryMove(float moveHorizontal, float moveVertical)
+        {
+            CmdMovePlayer(_connectionId, moveHorizontal, moveVertical);
         }
 
         int IPlayer.GetId()
@@ -43,16 +55,10 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         }
 
         [Server]
-        void IPlayer.InitializeMiniGame(int connectionId, MiniGameData data)
+        void IMiniGameActionsProvider.InitializeMiniGame(int connectionId, MiniGameData data)
         {
             var targetConnection = NetworkServer.connections[connectionId];
             InitializeMiniGame(targetConnection, data);
-        }
-
-        [TargetRpc]
-        private void InitializeMiniGame(NetworkConnectionToClient _, MiniGameData data)
-        {
-            _mediator.InitializeMiniGame(data);
         }
 
         [Client]
@@ -61,35 +67,36 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             return gameObject;
         }
 
-        [Client]
-        void IMovable.TryMove(float moveHorizontal, float moveVertical)
+        [TargetRpc]
+        private void InitializeMiniGame(NetworkConnectionToClient _, MiniGameData data)
         {
-            Assert.IsTrue(isLocalPlayer);
-
-            Assert.IsFalse(_connectionId == -1, "ConnectionId == -1");
-
-            MovePlayer(_connectionId, moveHorizontal, moveVertical);
+            _mediator.InitializeMiniGame(data);
         }
 
         [Server]
-        public void Initialize(NetworkConnectionToClient connection, IPlayerMovementHandler movementHandler)
+        public void Initialize(NetworkConnectionToClient connection, IPlayerMovementHandler movementHandler,
+            IMiniGameEventsHandler eventsHandler)
         {
+            _miniGameEventsHandler = eventsHandler;
+            _miniGameEventsHandler.SetActionsProvider(this);
+
             _movementHandler = movementHandler;
 
-            HandlePlayerInitialized(connection, connection.connectionId);
+            _connectionId = connection.connectionId;
+
+            HandlePlayerInitialized(connection, _connectionId);
         }
 
         [TargetRpc]
         private void HandlePlayerInitialized(NetworkConnectionToClient _, int connectionId)
         {
-            _mediator = FindObjectOfType<MonoBehaviourProvider>();
+            _mediator = FindObjectOfType<ClientDataProvider>();
             _mediator.SetMovable(this);
 
-            Assert.IsFalse(connectionId == -1, "ConnectionId == -1");
+            var eventsHandler = _mediator.GetEventsHandler();
+            eventsHandler.SetActionsProvider(this);
 
             _connectionId = connectionId;
-
-            Debug.Log("On Player Initialized");
         }
 
         [Server]
@@ -112,7 +119,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         }
 
         [Command]
-        private void MovePlayer(int connectionId, float moveHorizontal, float moveVertical)
+        private void CmdMovePlayer(int connectionId, float moveHorizontal, float moveVertical)
         {
             _movementHandler.TryMovePlayer(connectionId, moveHorizontal, moveVertical);
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Mirror;
 
 using UnityEngine;
+using UnityEngine.Assertions;
 
 using Random = UnityEngine.Random;
 
@@ -18,11 +19,13 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
         private readonly MiniGameSettings _settings;
         private readonly MiniGameView _view;
 
-        private Dictionary<string, StakeholdersData> _stakeholdersByIds;
+        private IMiniGameActionsProvider _actionsProvider;
+
+        private bool _initialized;
 
         private MiniGameModel _model;
 
-        private bool _initialized;
+        private Dictionary<string, StakeholdersData> _stakeholdersByIds;
 
         public MiniGameController(MiniGameView view, MiniGameSettings settings, params IPauseHandler[] pauseHandlers)
         {
@@ -34,6 +37,45 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 
             _view.Clicked += HandleClick;
             _view.Disable();
+        }
+
+        [Client]
+        void IMiniGameClientInitializer.InitializeMiniGame(MiniGameData data)
+        {
+            _model = new MiniGameModel(data);
+
+            _view.SetCorrectAreaPosition(data.CorrectPosition);
+            _view.SetFlagPosition(0);
+            _view.Enable();
+
+            SetPauseState(true);
+
+            _initialized = true;
+        }
+
+        void IMiniGameEventsHandler.SetActionsProvider(IMiniGameActionsProvider actionsProvider)
+        {
+            _actionsProvider = actionsProvider;
+        }
+
+        [Server]
+        void IMiniGameEventsHandler.SendEvents(bool isCorrectAction, string guid)
+        {
+            Assert.IsFalse(_stakeholdersByIds.Count == 0);
+
+            var stakeholders = _stakeholdersByIds[guid];
+
+            if (isCorrectAction)
+            {
+                Debug.Log("CorrectAction");
+            }
+            else
+            {
+                Debug.Log("IncorrectAction");
+                HandleMiniGameLost.Invoke(stakeholders.Player);
+            }
+
+            stakeholders.Observer.HandleMiniGameFinished();
         }
 
         [Server]
@@ -67,33 +109,11 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 
                 if (_model.IsTimeOver())
                 {
-                    SendEvents(false, _model.Guid);
+                    _actionsProvider.CmdSendEvents(false, _model.Guid);
 
                     StopMiniGame();
                 }
             }
-        }
-
-        [Client]
-        private void StopMiniGame()
-        {
-            SetPauseState(false);
-            _view.Disable();
-            _initialized = false;
-        }
-
-        [Client]
-        void IMiniGameClientInitializer.InitializeMiniGame(MiniGameData data)
-        {
-            _model = new MiniGameModel(data);
-
-            _view.SetCorrectAreaPosition(data.CorrectPosition);
-            _view.SetFlagPosition(0);
-            _view.Enable();
-
-            SetPauseState(true);
-
-            _initialized = true;
         }
 
         [Client]
@@ -103,25 +123,7 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 
             StopMiniGame();
 
-            SendEvents(isCorrectClick, _model.Guid);
-        }
-
-        [Command]
-        private void SendEvents(bool isCorrectAction, string guid)
-        {
-            var stakeholders = _stakeholdersByIds[guid];
-
-            if (isCorrectAction)
-            {
-                Debug.Log("CorrectAction");
-            }
-            else
-            {
-                Debug.Log("IncorrectAction");
-                HandleMiniGameLost.Invoke(stakeholders.Player);
-            }
-
-            stakeholders.Observer.HandleMiniGameFinished();
+            _actionsProvider.CmdSendEvents(isCorrectClick, _model.Guid);
         }
 
         [Client]
@@ -138,6 +140,14 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
                     handler.HandleResume();
                 }
             }
+        }
+
+        [Client]
+        private void StopMiniGame()
+        {
+            SetPauseState(false);
+            _view.Disable();
+            _initialized = false;
         }
     }
 }

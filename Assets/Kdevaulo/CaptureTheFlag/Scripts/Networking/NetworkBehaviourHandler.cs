@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Linq;
 
-using Kdevaulo.CaptureTheFlag.PlayerBehaviour;
+using Kdevaulo.CaptureTheFlag.MiniGameBehaviour;
 
 using Mirror;
 
@@ -19,10 +18,14 @@ namespace Kdevaulo.CaptureTheFlag.Networking
         private IPlayerMovementHandler _movementHandler;
 
         private IPlayerTuner _playerTuner;
-
+        
+        private MiniGameController _miniGameController;
+        
         public void Initialize(IPlayerProvider playerProvider, IPlayerMovementHandler movementHandler,
-            IPlayerTuner playerTuner)
+            IPlayerTuner playerTuner, MiniGameController miniGameController)
         {
+            _miniGameController = miniGameController;
+            
             _playerTuner = playerTuner;
             _playerProvider = playerProvider;
             _movementHandler = movementHandler;
@@ -72,7 +75,7 @@ namespace Kdevaulo.CaptureTheFlag.Networking
 
             _playerTuner.TunePlayer(player);
             
-            player.Initialize(connection, _movementHandler);
+            player.Initialize(connection, _movementHandler, _miniGameController);
         }
 
         // private void CallLostMessage(IFlagInvader invader)

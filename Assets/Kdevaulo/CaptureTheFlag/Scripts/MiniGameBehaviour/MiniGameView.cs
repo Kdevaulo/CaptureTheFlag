@@ -42,7 +42,6 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
             return _correctZoneScrollbar.size;
         }
 
-        
         public void SetCorrectAreaPosition(float percentage)
         {
             _correctZoneScrollbar.value = Mathf.Clamp01(percentage);

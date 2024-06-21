@@ -51,7 +51,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             _invaders = null;
             _invadersCaptures = null;
         }
-        
+
         void IUpdatable.Update()
         {
             if (_canHandleFlags)
@@ -219,6 +219,8 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 
                             flagsToRemove ??= new List<FlagView>();
                             flagsToRemove.AddRange(_flags.Keys);
+
+                            Debug.Log("GameFinished");
                         }
                         else if (captureState == CaptureState.Captured)
                         {

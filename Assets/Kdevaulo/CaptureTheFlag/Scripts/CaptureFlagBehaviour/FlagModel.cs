@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Mirror;
+
+using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 {
@@ -17,7 +19,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 
         private bool _canCapture;
         private bool _waitingForMiniGame;
-
+        
         public FlagModel(GameObject owner, Vector3 position, float secondsToCapture)
         {
             Position = position;
@@ -28,12 +30,15 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             _waitingForMiniGame = false;
         }
 
+        [Server]
         void IMiniGameObserver.HandleMiniGameFinished()
         {
             CanStartMiniGame = true;
             _waitingForMiniGame = false;
+            
         }
 
+        [Server]
         public CaptureState TryCapture()
         {
             if (_waitingForMiniGame)
@@ -45,11 +50,13 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             return _secondsToCapture <= 0 ? CaptureState.Captured : CaptureState.Capturing;
         }
 
+        [Server]
         public void WaitForMiniGame()
         {
             _waitingForMiniGame = true;
         }
 
+        [Server]
         public bool CheckOwner(GameObject target)
         {
             return target == _owner;

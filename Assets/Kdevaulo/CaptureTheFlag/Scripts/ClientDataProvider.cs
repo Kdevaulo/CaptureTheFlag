@@ -8,20 +8,24 @@ using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag
 {
-    [AddComponentMenu(nameof(MonoBehaviourProvider) + " in " + nameof(CaptureTheFlag))]
-    public class MonoBehaviourProvider : MonoBehaviour
+    [AddComponentMenu(nameof(ClientDataProvider) + " in " + nameof(CaptureTheFlag))]
+    public class ClientDataProvider : MonoBehaviour
     {
         public event Action MovableSet = delegate { };
 
         public IMovable Movable { get; private set; }
 
         private IMiniGameClientInitializer _initializer;
+        private IMiniGameEventsHandler _eventsHandler;
 
-        public void Initialize(IMiniGameClientInitializer initializer)
+        public void Initialize(IMiniGameClientInitializer initializer, IMiniGameEventsHandler eventsHandler)
         {
             _initializer = initializer;
+
+            _eventsHandler = eventsHandler;
         }
 
+        [Client]
         public void SetMovable(IMovable movable)
         {
             Movable = movable;
@@ -33,6 +37,12 @@ namespace Kdevaulo.CaptureTheFlag
         public void InitializeMiniGame(MiniGameData data)
         {
             _initializer.InitializeMiniGame(data);
+        }
+
+        [Client]
+        public IMiniGameEventsHandler GetEventsHandler()
+        {
+            return _eventsHandler;
         }
     }
 }
