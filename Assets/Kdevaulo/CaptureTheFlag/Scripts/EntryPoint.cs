@@ -90,7 +90,7 @@ namespace Kdevaulo.CaptureTheFlag
             _updatables = new IUpdatable[]
                 { _userInputHandler, _flagsController, _miniGameController, _uiMessageController };
 
-            _disconnectionHandlers = new IClientDisconnectionHandler[] { _playerController };
+            _disconnectionHandlers = new IClientDisconnectionHandler[] { _playerController, _flagsController};
         }
 
         private void SubscribeEvents()

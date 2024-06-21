@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -25,15 +26,15 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 
         [field: SerializeField] public Vector3[] SpawnPositions { get; private set; }
 
-        private Dictionary<Vector3, bool> _flagsPositions;
+        private List<PositionData> _flagsPositions;
 
         public void Initialize()
         {
-            _flagsPositions = new Dictionary<Vector3, bool>(SpawnPositions.Length);
+            _flagsPositions = new List<PositionData>(SpawnPositions.Length);
 
             foreach (var position in SpawnPositions)
             {
-                _flagsPositions.Add(position, false);
+                _flagsPositions.Add(new PositionData(position, false));
             }
         }
 
@@ -41,37 +42,38 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         {
             var targetPosition = BorrowFirstFreePosition();
 
-            Assert.IsFalse(float.IsInfinity(targetPosition.x));
-
             return targetPosition;
         }
 
         private Vector3 BorrowFirstFreePosition()
         {
-            if (!_flagsPositions.ContainsValue(false))
+            var freePosition = TryGetFreePosition();
+
+            if (freePosition == null)
             {
                 RefreshFlags();
             }
-            
-            foreach (var flagPosition in _flagsPositions)
+            else
             {
-                if (flagPosition.Value == false)
-                {
-                    _flagsPositions[flagPosition.Key] = true;
-                    return flagPosition.Key;
-                }
+                freePosition.IsBusy = true;
+
+                return freePosition.Position;
             }
 
-            
-            return Vector3.positiveInfinity;
+            freePosition = TryGetFreePosition();
+            Assert.IsNotNull(freePosition);
+
+            return freePosition.Position;
+        }
+
+        private PositionData TryGetFreePosition()
+        {
+            return _flagsPositions.FirstOrDefault(x => !x.IsBusy);
         }
 
         private void RefreshFlags()
         {
-            foreach (var flagPosition in _flagsPositions)
-            {
-                _flagsPositions[flagPosition.Key] = false;
-            }
+            _flagsPositions.ForEach(x => x.IsBusy = false);
         }
     }
 }

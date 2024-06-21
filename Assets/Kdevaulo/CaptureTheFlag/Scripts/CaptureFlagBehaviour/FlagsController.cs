@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using Mirror;
 
@@ -7,7 +8,7 @@ using UnityEngine.Assertions;
 
 namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 {
-    public class FlagsController : IUpdatable, IClearable
+    public class FlagsController : IUpdatable, IClearable, IClientDisconnectionHandler
     {
         private readonly FlagFactory _factory;
         private readonly IMiniGameHandler _miniGameHandler;
@@ -18,9 +19,11 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         private bool _canHandleFlags;
 
         private Dictionary<FlagView, FlagModel> _flags;
+        private Dictionary<IPlayer, int> _invadersCaptures;
 
         private List<IPlayer> _invaders;
-        private Dictionary<IPlayer, int> _invadersCaptures;
+        private List<FlagView> _flagsToRemove;
+        private List<IPlayer> _invadersToRemove;
 
         private int _maxFlags;
 
@@ -56,16 +59,36 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         {
             if (_canHandleFlags)
             {
-                var flagsToRemove = TryCaptureFlags();
+                TryCaptureFlags();
+                TryClearRedundantFlags();
+                TryClearRedundantInvaders();
+            }
+        }
 
-                if (flagsToRemove != null)
+        private void TryClearRedundantFlags()
+        {
+            if (_flagsToRemove != null)
+            {
+                foreach (var flag in _flagsToRemove)
                 {
-                    foreach (var flag in flagsToRemove)
-                    {
-                        _flags.Remove(flag);
-                        NetworkServer.Destroy(flag.gameObject);
-                    }
+                    _flags.Remove(flag);
+                    NetworkServer.Destroy(flag.gameObject);
                 }
+
+                _flagsToRemove.Clear();
+            }
+        }
+
+        private void TryClearRedundantInvaders()
+        {
+            if (_invadersToRemove != null)
+            {
+                foreach (var invader in _invadersToRemove)
+                {
+                    _invaders.Remove(invader);
+                }
+
+                _invadersToRemove.Clear();
             }
         }
 
@@ -185,10 +208,8 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         }
 
         [Server]
-        private List<FlagView> TryCaptureFlags()
+        private void TryCaptureFlags()
         {
-            List<FlagView> flagsToRemove = null;
-
             foreach (var invader in _invaders)
             {
                 if (IsInvaderBlocked(invader))
@@ -217,21 +238,19 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
                         {
                             _canHandleFlags = false;
 
-                            flagsToRemove ??= new List<FlagView>();
-                            flagsToRemove.AddRange(_flags.Keys);
+                            _flagsToRemove ??= new List<FlagView>();
+                            _flagsToRemove.AddRange(_flags.Keys);
 
                             Debug.Log("GameFinished");
                         }
                         else if (captureState == CaptureState.Captured)
                         {
-                            flagsToRemove ??= new List<FlagView>();
-                            flagsToRemove.Add(flag.Key);
+                            _flagsToRemove ??= new List<FlagView>();
+                            _flagsToRemove.Add(flag.Key);
                         }
                     }
                 }
             }
-
-            return flagsToRemove;
         }
 
         [Server]
@@ -242,6 +261,16 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
                 model.WaitForMiniGame();
                 _miniGameHandler.CallMiniGame(model, player);
             }
+        }
+
+        [Server]
+        void IClientDisconnectionHandler.HandleClientDisconnected(int id)
+        {
+            _invadersToRemove ??= new List<IPlayer>();
+
+            var targetInvader = _invaders.First(x => x.GetId() == id);
+
+            _invadersToRemove.Add(targetInvader);
         }
     }
 }

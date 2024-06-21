@@ -48,7 +48,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             return _connectionId;
         }
 
-        [Client]
+        [Server]
         Vector3 IPlayer.GetPosition()
         {
             return transform.position;
@@ -61,7 +61,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             InitializeMiniGame(targetConnection, data);
         }
 
-        [Client]
+        [Server]
         GameObject IPlayer.GetOwner()
         {
             return gameObject;
