@@ -268,7 +268,12 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         {
             _invadersToRemove ??= new List<IPlayer>();
 
-            var targetInvader = _invaders.First(x => x.GetId() == id);
+            var targetInvader = _invaders.FirstOrDefault(x => x.GetId() == id);
+
+            if (targetInvader == null)
+            {
+                return;
+            }
 
             _invadersToRemove.Add(targetInvader);
         }

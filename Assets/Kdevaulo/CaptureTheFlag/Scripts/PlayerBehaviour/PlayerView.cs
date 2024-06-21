@@ -51,7 +51,7 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         [Server]
         Vector3 IPlayer.GetPosition()
         {
-            return transform.position;
+            return _position;
         }
 
         [Server]
@@ -104,18 +104,22 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         {
             var movement = new Vector3(moveHorizontal, 0, moveVertical);
             _position += movement;
+
+            transform.position = _position;
         }
 
         [Server]
         public void SetPosition(Vector3 position)
         {
             _position = position;
+            transform.position = _position;
         }
 
         [Server]
         public void SetColor(Color color)
         {
             _color = color;
+            ChangeColor(_color);
         }
 
         [Command]
@@ -126,6 +130,14 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
 
         [Client]
         private void HandleColorUpdated(Color _, Color newColor)
+        {
+            ChangeColor(newColor);
+        }
+
+        /// <summary>
+        /// Works on Server and Client
+        /// </summary>
+        private void ChangeColor(Color newColor)
         {
             _propertyBlock.SetColor("_Color", newColor);
             _meshRenderer.SetPropertyBlock(_propertyBlock);

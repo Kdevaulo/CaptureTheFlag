@@ -28,20 +28,32 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
         public void SetPosition(Vector3 targetPosition)
         {
             _position = targetPosition;
+            transform.position = _position;
         }
 
         [Server]
         public void SetColor(Color color)
         {
             _color = color;
+            ChangeColor(_color);
         }
 
+        [Client]
         private void HandleColorChanged(Color _, Color newColor)
         {
-            _propertyBlock.SetColor("_Color", newColor);
+            ChangeColor(newColor);
+        }
+
+        /// <summary>
+        /// Works on Server and Client
+        /// </summary>
+        private void ChangeColor(Color color)
+        {
+            _propertyBlock.SetColor("_Color", color);
             _mesh.SetPropertyBlock(_propertyBlock);
         }
 
+        [Client]
         private void HandlePositionChanged(Vector3 _, Vector3 newPosition)
         {
             transform.position = newPosition;
