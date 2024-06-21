@@ -6,6 +6,5 @@ namespace Kdevaulo.CaptureTheFlag
     {
         event Action<IPlayer> HandleMiniGameLost;
         void CallMiniGame(IMiniGameObserver observer, IPlayer player);
-        
     }
 }

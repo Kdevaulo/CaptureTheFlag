@@ -15,8 +15,8 @@ namespace Kdevaulo.CaptureTheFlag.Networking
 
         private IPlayerTuner _playerTuner;
         private IPlayerProvider _playerProvider;
-        private IPlayerMovementHandler _movementHandler;
         private IMiniGameHandler _miniGameHandler;
+        private IPlayerMovementHandler _movementHandler;
 
         public void Initialize(IPlayerProvider playerProvider, IPlayerMovementHandler movementHandler,
             IPlayerTuner playerTuner, IMiniGameHandler miniGameHandler)
@@ -86,7 +86,7 @@ namespace Kdevaulo.CaptureTheFlag.Networking
             {
                 Message = LocalizationStrings.LoseMessage
             };
-            
+
             foreach (var item in NetworkServer.connections.Where(x => x.Key != connectionId))
             {
                 item.Value.Send(message);

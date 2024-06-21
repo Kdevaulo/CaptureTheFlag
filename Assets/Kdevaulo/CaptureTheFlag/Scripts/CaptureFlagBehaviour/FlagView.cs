@@ -1,6 +1,4 @@
-﻿using System;
-
-using Mirror;
+﻿using Mirror;
 
 using UnityEngine;
 
@@ -11,13 +9,13 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
     {
         [SerializeField] private MeshRenderer _mesh;
 
-        private MaterialPropertyBlock _propertyBlock;
-
         [SyncVar(hook = nameof(HandleColorChanged))]
         private Color _color;
 
         [SyncVar(hook = nameof(HandlePositionChanged))]
         private Vector3 _position;
+
+        private MaterialPropertyBlock _propertyBlock;
 
         private void Awake()
         {

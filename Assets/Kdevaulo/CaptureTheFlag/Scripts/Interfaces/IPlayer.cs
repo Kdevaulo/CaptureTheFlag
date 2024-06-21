@@ -1,15 +1,11 @@
-﻿using Kdevaulo.CaptureTheFlag.MiniGameBehaviour;
-
-using Mirror;
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Kdevaulo.CaptureTheFlag
 {
     public interface IPlayer : IMiniGameActionsProvider
     {
-        GameObject GetOwner();
         int GetId();
+        GameObject GetOwner();
         Vector3 GetPosition();
     }
 }

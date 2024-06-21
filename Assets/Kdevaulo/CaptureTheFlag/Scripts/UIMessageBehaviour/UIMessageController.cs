@@ -39,17 +39,17 @@ namespace Kdevaulo.CaptureTheFlag.UIMessageBehaviour
             }
         }
 
+        private void HandleMessage(MiniGameLoseMessage message)
+        {
+            ActivateMessage(message.Message);
+        }
+
         private void ActivateMessage(string message)
         {
             _messageView.ActivateMessage(message);
 
             _secondsToDisable = _settings.MessageDurationInSeconds;
             _isActive = true;
-        }
-
-        private void HandleMessage(MiniGameLoseMessage message)
-        {
-            ActivateMessage(message.Message);
         }
     }
 }

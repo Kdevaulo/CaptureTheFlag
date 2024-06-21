@@ -21,11 +21,11 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 
         private IMiniGameActionsProvider _actionsProvider;
 
-        private bool _initialized;
+        private Dictionary<string, StakeholdersData> _stakeholdersByIds;
 
         private MiniGameModel _model;
 
-        private Dictionary<string, StakeholdersData> _stakeholdersByIds;
+        private bool _initialized;
 
         public MiniGameController(MiniGameView view, MiniGameSettings settings, params IPauseHandler[] pauseHandlers)
         {
@@ -127,6 +127,14 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
         }
 
         [Client]
+        private void StopMiniGame()
+        {
+            SetPauseState(false);
+            _view.Disable();
+            _initialized = false;
+        }
+
+        [Client]
         private void SetPauseState(bool state)
         {
             foreach (var handler in _pauseHandlers)
@@ -140,14 +148,6 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
                     handler.HandleResume();
                 }
             }
-        }
-
-        [Client]
-        private void StopMiniGame()
-        {
-            SetPauseState(false);
-            _view.Disable();
-            _initialized = false;
         }
     }
 }

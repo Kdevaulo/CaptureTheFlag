@@ -11,24 +11,29 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
     {
         [SerializeField] private MeshRenderer _meshRenderer;
 
+        private IMiniGameEventsHandler _miniGameEventsHandler;
+        private IPlayerMovementHandler _movementHandler;
+
         [SyncVar(hook = nameof(HandleColorUpdated))]
         private Color _color;
-
-        private int _connectionId = -1;
-
-        private ClientDataProvider _mediator;
-
-        private IPlayerMovementHandler _movementHandler;
-        private IMiniGameEventsHandler _miniGameEventsHandler;
 
         [SyncVar(hook = nameof(HandlePositionChanged))]
         private Vector3 _position;
 
+        private ClientDataProvider _mediator;
         private MaterialPropertyBlock _propertyBlock;
+
+        private int _connectionId = -1;
 
         private void Awake()
         {
             _propertyBlock = new MaterialPropertyBlock();
+        }
+
+        [Client]
+        void IMovable.TryMove(float moveHorizontal, float moveVertical)
+        {
+            CmdMovePlayer(_connectionId, moveHorizontal, moveVertical);
         }
 
         [Command(requiresAuthority = false)]
@@ -37,10 +42,11 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             _miniGameEventsHandler.SendEvents(isCorrectAction, guid);
         }
 
-        [Client]
-        void IMovable.TryMove(float moveHorizontal, float moveVertical)
+        [Server]
+        void IMiniGameActionsProvider.InitializeMiniGame(int connectionId, MiniGameData data)
         {
-            CmdMovePlayer(_connectionId, moveHorizontal, moveVertical);
+            var targetConnection = NetworkServer.connections[connectionId];
+            InitializeMiniGame(targetConnection, data);
         }
 
         int IPlayer.GetId()
@@ -55,22 +61,9 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         }
 
         [Server]
-        void IMiniGameActionsProvider.InitializeMiniGame(int connectionId, MiniGameData data)
-        {
-            var targetConnection = NetworkServer.connections[connectionId];
-            InitializeMiniGame(targetConnection, data);
-        }
-
-        [Server]
         GameObject IPlayer.GetOwner()
         {
             return gameObject;
-        }
-
-        [TargetRpc]
-        private void InitializeMiniGame(NetworkConnectionToClient _, MiniGameData data)
-        {
-            _mediator.InitializeMiniGame(data);
         }
 
         [Server]
@@ -85,18 +78,6 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             _connectionId = connection.connectionId;
 
             HandlePlayerInitialized(connection, _connectionId);
-        }
-
-        [TargetRpc]
-        private void HandlePlayerInitialized(NetworkConnectionToClient _, int connectionId)
-        {
-            _mediator = FindObjectOfType<ClientDataProvider>();
-            _mediator.SetMovable(this);
-
-            var eventsHandler = _mediator.GetEventsHandler();
-            eventsHandler.SetActionsProvider(this);
-
-            _connectionId = connectionId;
         }
 
         [Server]
@@ -126,6 +107,24 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         private void CmdMovePlayer(int connectionId, float moveHorizontal, float moveVertical)
         {
             _movementHandler.TryMovePlayer(connectionId, moveHorizontal, moveVertical);
+        }
+
+        [TargetRpc]
+        private void HandlePlayerInitialized(NetworkConnectionToClient _, int connectionId)
+        {
+            _mediator = FindObjectOfType<ClientDataProvider>();
+            _mediator.SetMovable(this);
+
+            var eventsHandler = _mediator.GetEventsHandler();
+            eventsHandler.SetActionsProvider(this);
+
+            _connectionId = connectionId;
+        }
+
+        [TargetRpc]
+        private void InitializeMiniGame(NetworkConnectionToClient _, MiniGameData data)
+        {
+            _mediator.InitializeMiniGame(data);
         }
 
         [Client]

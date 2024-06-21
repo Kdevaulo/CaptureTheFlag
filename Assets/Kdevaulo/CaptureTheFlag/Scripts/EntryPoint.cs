@@ -30,21 +30,21 @@ namespace Kdevaulo.CaptureTheFlag
         [Header("Network")]
         [SerializeField] private NetworkBehaviourHandler _networkHandler;
 
+        private IUpdatable[] _updatables;
         private IClearable[] _clearables;
         private IClientDisconnectionHandler[] _disconnectionHandlers;
 
         private PlayerFactory _factory;
-        private PlayerTuner _playerTuner;
+        private FlagFactory _flagFactory;
 
         private FlagsController _flagsController;
-        private FlagFactory _flagFactory;
-        private MiniGameController _miniGameController;
         private PlayerController _playerController;
+        private MiniGameController _miniGameController;
 
         private PlayerMover _playerMover;
-        //private IReinitializable[] _reinitializables;
+        private PlayerTuner _playerTuner;
+
         private UIMessageController _uiMessageController;
-        private IUpdatable[] _updatables;
 
         private UserInputHandler _userInputHandler;
 
@@ -90,7 +90,7 @@ namespace Kdevaulo.CaptureTheFlag
             _updatables = new IUpdatable[]
                 { _userInputHandler, _flagsController, _miniGameController, _uiMessageController };
 
-            _disconnectionHandlers = new IClientDisconnectionHandler[] { _playerController, _flagsController};
+            _disconnectionHandlers = new IClientDisconnectionHandler[] { _playerController, _flagsController };
         }
 
         private void SubscribeEvents()

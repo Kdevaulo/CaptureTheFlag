@@ -2,7 +2,6 @@
 
 using Mirror;
 
-using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
@@ -15,9 +14,9 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
         private readonly PlayerFactory _factory;
         private readonly ClientDataProvider _movableProvider;
 
-        private Dictionary<int, PlayerView> _playersByIds = new Dictionary<int, PlayerView>();
-
         private IMovable _localPlayer;
+
+        private Dictionary<int, PlayerView> _playersByIds = new Dictionary<int, PlayerView>();
 
         public PlayerController(PlayerFactory factory, PlayerMover mover, ClientDataProvider movableProvider,
             IMovementProvider movementProvider)
@@ -34,22 +33,12 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             _movementProvider.MoveVertical += HandleVerticalMovement;
         }
 
-        [Client]
-        private void HandleMovableSet()
+        [Server]
+        void IClientDisconnectionHandler.HandleClientDisconnected(int id)
         {
-            _localPlayer = _movableProvider.Movable;
-        }
+            Assert.IsTrue(_playersByIds.ContainsKey(id));
 
-        [Client]
-        private void HandleHorizontalMovement(float offset)
-        {
-            _localPlayer.TryMove(offset, 0);
-        }
-
-        [Client]
-        private void HandleVerticalMovement(float offset)
-        {
-            _localPlayer.TryMove(0, offset);
+            _playersByIds.Remove(id);
         }
 
         [Server]
@@ -72,12 +61,22 @@ namespace Kdevaulo.CaptureTheFlag.PlayerBehaviour
             return view;
         }
 
-        [Server]
-        void IClientDisconnectionHandler.HandleClientDisconnected(int id)
+        [ClientCallback]
+        private void HandleHorizontalMovement(float offset)
         {
-            Assert.IsTrue(_playersByIds.ContainsKey(id));
-            
-            _playersByIds.Remove(id);
+            _localPlayer.TryMove(offset, 0);
+        }
+
+        [Client]
+        private void HandleMovableSet()
+        {
+            _localPlayer = _movableProvider.Movable;
+        }
+
+        [Client]
+        private void HandleVerticalMovement(float offset)
+        {
+            _localPlayer.TryMove(0, offset);
         }
     }
 }

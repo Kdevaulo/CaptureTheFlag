@@ -12,10 +12,9 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
 
         private readonly float _correctAreaSize;
 
-        private float _correctPosition;
-        private float _movementSpeed;
-
         private float _timeLeft;
+        private float _movementSpeed;
+        private float _correctPosition;
 
         public MiniGameModel(MiniGameData data)
         {

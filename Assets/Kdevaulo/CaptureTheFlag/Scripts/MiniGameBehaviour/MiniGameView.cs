@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Mirror;
-
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,6 +9,8 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
     [AddComponentMenu(nameof(MiniGameView) + " in " + nameof(MiniGameBehaviour))]
     public class MiniGameView : MonoBehaviour, IPointerClickHandler
     {
+        public event Action Clicked = delegate { };
+
         [SerializeField] private Scrollbar _correctZoneScrollbar;
 
         [SerializeField] private GameObject _miniGameContainer;
@@ -24,7 +24,6 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
         private float _maxPosition;
 
         private bool _movingRight;
-        public event Action Clicked = delegate { };
 
         private void Awake()
         {

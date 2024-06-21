@@ -11,12 +11,11 @@ namespace Kdevaulo.CaptureTheFlag
     [AddComponentMenu(nameof(ClientDataProvider) + " in " + nameof(CaptureTheFlag))]
     public class ClientDataProvider : MonoBehaviour
     {
+        public IMovable Movable { get; private set; }
         public event Action MovableSet = delegate { };
 
-        public IMovable Movable { get; private set; }
-
-        private IMiniGameClientInitializer _initializer;
         private IMiniGameEventsHandler _eventsHandler;
+        private IMiniGameClientInitializer _initializer;
 
         public void Initialize(IMiniGameClientInitializer initializer, IMiniGameEventsHandler eventsHandler)
         {

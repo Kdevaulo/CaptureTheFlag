@@ -4,8 +4,8 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
 {
     public class PositionData
     {
-        public Vector3 Position;
         public bool IsBusy;
+        public Vector3 Position;
 
         public PositionData(Vector3 position, bool isBusy)
         {

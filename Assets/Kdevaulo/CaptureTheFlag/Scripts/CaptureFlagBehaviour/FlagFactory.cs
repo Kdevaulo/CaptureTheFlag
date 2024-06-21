@@ -8,8 +8,8 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
     public class FlagFactory
     {
         private readonly Transform _parent;
-        private readonly FlagView _viewPrefab;
         private readonly FlagSettings _settings;
+        private readonly FlagView _viewPrefab;
 
         public FlagFactory(FlagView viewPrefab, FlagSettings settings, Transform parent)
         {
