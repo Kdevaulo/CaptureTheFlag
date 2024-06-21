@@ -240,7 +240,7 @@ namespace Kdevaulo.CaptureTheFlag.CaptureFlagBehaviour
             if (model.CanStartMiniGame && Random.value < _miniGameChance)
             {
                 model.WaitForMiniGame();
-                _miniGameHandler.ServerCallMiniGame(model, player);
+                _miniGameHandler.CallMiniGame(model, player);
             }
         }
     }

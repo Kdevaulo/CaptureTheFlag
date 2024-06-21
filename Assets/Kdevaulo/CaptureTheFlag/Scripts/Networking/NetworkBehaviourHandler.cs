@@ -1,6 +1,5 @@
 ﻿using System;
-
-using Kdevaulo.CaptureTheFlag.MiniGameBehaviour;
+using System.Linq;
 
 using Mirror;
 
@@ -14,21 +13,21 @@ namespace Kdevaulo.CaptureTheFlag.Networking
         public event Action ClientDisconnected = delegate { };
         public event Action<int> ClientDisconnectedFromServer = delegate { };
 
+        private IPlayerTuner _playerTuner;
         private IPlayerProvider _playerProvider;
         private IPlayerMovementHandler _movementHandler;
+        private IMiniGameHandler _miniGameHandler;
 
-        private IPlayerTuner _playerTuner;
-        
-        private MiniGameController _miniGameController;
-        
         public void Initialize(IPlayerProvider playerProvider, IPlayerMovementHandler movementHandler,
-            IPlayerTuner playerTuner, MiniGameController miniGameController)
+            IPlayerTuner playerTuner, IMiniGameHandler miniGameHandler)
         {
-            _miniGameController = miniGameController;
-            
+            _miniGameHandler = miniGameHandler;
+
             _playerTuner = playerTuner;
             _playerProvider = playerProvider;
             _movementHandler = movementHandler;
+
+            _miniGameHandler.HandleMiniGameLost += CallLostMessage;
         }
 
         [Server]
@@ -54,7 +53,7 @@ namespace Kdevaulo.CaptureTheFlag.Networking
             base.OnServerDisconnect(connection);
 
             NetworkServer.DestroyPlayerForConnection(connection);
-            
+
             ClientDisconnectedFromServer.Invoke(connection.connectionId);
         }
 
@@ -70,28 +69,28 @@ namespace Kdevaulo.CaptureTheFlag.Networking
         private void HandleClientConnection(NetworkConnectionToClient connection, ClientConnectedMessage message)
         {
             var player = _playerProvider.SpawnPlayer(connection.connectionId);
-            Debug.Log($"PlayerSpawned = {connection.connectionId}");
+
             NetworkServer.AddPlayerForConnection(connection, player.gameObject);
 
             _playerTuner.TunePlayer(player);
-            
-            player.Initialize(connection, _movementHandler, _miniGameController);
+
+            player.Initialize(connection, _movementHandler, _miniGameHandler);
         }
 
-        // private void CallLostMessage(IFlagInvader invader)
-        // {
-        //     var identity = invader.GetNetIdentity();
-        //
-        //     var message = new MiniGameLoseMessage()
-        //     {
-        //         Message = LocalizationStrings.LoseMessage,
-        //         Identity = identity
-        //     };
-        //
-        //     foreach (var item in NetworkServer.connections.Where(x => x.Value.identity != identity))
-        //     {
-        //         item.Value.Send(message);
-        //     }
-        // }
+        [Server]
+        private void CallLostMessage(IPlayer player)
+        {
+            int connectionId = player.GetId();
+
+            var message = new MiniGameLoseMessage
+            {
+                Message = LocalizationStrings.LoseMessage
+            };
+            
+            foreach (var item in NetworkServer.connections.Where(x => x.Key != connectionId))
+            {
+                item.Value.Send(message);
+            }
+        }
     }
 }

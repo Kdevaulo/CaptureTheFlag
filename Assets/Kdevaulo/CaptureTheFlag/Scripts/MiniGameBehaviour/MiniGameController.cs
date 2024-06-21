@@ -79,7 +79,7 @@ namespace Kdevaulo.CaptureTheFlag.MiniGameBehaviour
         }
 
         [Server]
-        void IMiniGameHandler.ServerCallMiniGame(IMiniGameObserver observer, IPlayer player)
+        void IMiniGameHandler.CallMiniGame(IMiniGameObserver observer, IPlayer player)
         {
             float correctPosition = Random.value;
 
